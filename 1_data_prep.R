@@ -55,10 +55,23 @@ data %<>%
 table(data$lialone)
 
 # loniless index
+lonvars_neg <- c("LO01_01", "LO01_04", "LO01_06",
+             "LO01_07", "LO01_08", "LO01_11")
+
+data[lonvars] <- sapply(data[lonvars], function(x) as.numeric(x)*-1 + 6) # rescale
+
 data$lonlindex <- rowSums(sapply(data[lonvars], as.numeric))
 
 summary(data$lonlindex)
 
 
+data$longquart <- cut(data$lonlindex, breaks=quantile(data$lonlindex,
+                                                      probs=seq(0,1, by=0.25), na.rm=TRUE),
+                      include.lowest = T)
 
-save.image("cc/data.RData")
+table(data[data$lonlindex == 22, "longquart"]) # disjunkt
+
+
+save.image("coRona2/in/data.RData")
+
+

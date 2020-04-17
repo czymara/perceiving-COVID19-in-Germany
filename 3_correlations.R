@@ -18,7 +18,7 @@ if (Sys.info()["nodename"]=="DBSFCL2"){
 setwd(root.dir)
 
 # load data
-load("data.RData")
+load("coRona2/in/data.RData")
 
 
 # count words co-occuring within users (id is user ID, I think)
