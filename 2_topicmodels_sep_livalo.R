@@ -130,11 +130,11 @@ lonely_topics <- stm(DFM_lon,
 topic_lon_privat <- summary(lonely_topics)
 topic_lon_privat <- topic_lon_privat$prob
 
-write.xlsx(topic_lon_privat, file = "coRona2/out/private_topics_lonely.xlsx")
+write.xlsx(topic_lon_privat, file = "coRona2/out/private_topics_livalone.xlsx")
 
 
 plot(lonely_topics, type = "summary")
-dev.copy(png,"coRona2/out/private_topic_lonely_freq.png")
+dev.copy(png,"coRona2/out/private_topic_livealone_freq.png")
 dev.off()
 
 
@@ -185,10 +185,11 @@ notlonely_topics <- stm(DFM_notlon,
 topic_notlon_privat <- summary(notlonely_topics)
 topic_notlon_privat <- topic_notlon_privat$prob
 
-write.xlsx(topic_notlon_privat, file = "coRona2/out/private_topics_notlonely.xlsx")
+write.xlsx(topic_notlon_privat, file = "coRona2/out/private_topics_notlivalone.xlsx")
 
 
 plot(notlonely_topics, type = "summary")
-dev.copy(png,"coRona2/out/private_topic_notlonely_freq.png")
+dev.copy(png,"coRona2/out/private_topic_notlivealone_freq.png")
 dev.off()
+
 
