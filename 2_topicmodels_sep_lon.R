@@ -86,7 +86,7 @@ summary(lonelydum_topics)
 
 sapply(1:8, function(x){
   plot(lonelydum_topics, type = "perspectives", topics = x)
-  dev.copy(png,paste("coRona2/out/private_topic_loncomp_", x, ".png", sep=""))
+  dev.copy(png,paste("coRona2/out/topiccomp/private_topic_lone_", x, ".png", sep=""))
   dev.off()
   })
 
