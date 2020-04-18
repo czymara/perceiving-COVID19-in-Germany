@@ -62,7 +62,7 @@ DFM_priv <- DFM_priv[complete.cases(DFM_priv@docvars$lialone), ] # listwise dele
 
 
 # und los
-Ntopic <- 5
+Ntopic <- 8
 
 private_topics <- stm(DFM_priv,
                     K = Ntopic,
@@ -94,7 +94,7 @@ plot(prep_priv, covariate = "lialone",
      cov.value1 = "living alone", cov.value2 = "not living alone",
      xlab = "Not living alone ..... living alone",
      main = "Effect of living alone")
-dev.copy(png,"coRona2/out/private_alone_effect.png")
+dev.copy(png,"coRona2/out/private_effect_alone.png")
 dev.off()
 
 

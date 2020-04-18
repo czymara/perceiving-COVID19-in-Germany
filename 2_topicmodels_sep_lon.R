@@ -86,11 +86,12 @@ summary(lonelydum_topics)
 
 sapply(1:8, function(x){
   plot(lonelydum_topics, type = "perspectives", topics = x)
-  dev.copy(png,paste("coRona2/out/topiccomp/private_topic_lone_", x, ".png", sep=""))
+  dev.copy(png,paste("coRona2/out/topiccomp/private_topic_lonely_", x, ".png", sep=""))
   dev.off()
   })
 
 
+##### separate analysis
 
 ## very lonely
 datalon <- data[ which(data$longquart == "(29,55]"), ]
@@ -122,8 +123,6 @@ DFM_lon <- dfm_trim(DFM_lon, max_docfreq = 0.20,  min_docfreq = 0.001, docfreq_t
 rowsum_lon <- apply(DFM_lon , 1, sum) # identify text with no common terms
 DFM_lon   <- DFM_lon[rowsum_lon > 0, ]  #remove all docs without these terms
 
-DFM_lon <- DFM_lon[complete.cases(DFM_lon@docvars$lialone), ] # listwise deletion
-
 
 # model
 lonely_topics <- stm(DFM_lon,
@@ -131,7 +130,6 @@ lonely_topics <- stm(DFM_lon,
                      seed = 1337,
                      verbose = T,
                      init.type = "Spectral",
-                   #  prevalence =~lialone,
                      data = DFM_lon@docvars
                      #, control = list(alpha = 1)
                    )
@@ -176,8 +174,6 @@ DFM_notlon <- dfm_trim(DFM_notlon, max_docfreq = 0.20,  min_docfreq = 0.001, doc
 
 rowsum_notlon <- apply(DFM_notlon , 1, sum) # identify text with no common terms
 DFM_notlon   <- DFM_notlon[rowsum_notlon > 0, ]  #remove all docs without these terms
-
-DFM_notlon <- DFM_notlon[complete.cases(DFM_notlon@docvars$lialone), ] # listwise deletion
 
 
 # model
