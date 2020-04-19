@@ -135,7 +135,9 @@ networkalone <- priv_word_correlations_alone %>%
   geom_edge_link(aes(edge_alpha = correlation), show.legend = FALSE) +
   geom_node_point(color = "lightblue", size = 5) +
   geom_node_text(aes(label = name), repel = TRUE) +
-  theme_void()
+  theme_void() +
+  labs(title = "Living alone") +
+  panel_border()
 
 set.seed(1337)
 networknotalone <- priv_word_correlations_notalone %>%
@@ -145,12 +147,12 @@ networknotalone <- priv_word_correlations_notalone %>%
   geom_edge_link(aes(edge_alpha = correlation), show.legend = FALSE) +
   geom_node_point(color = "lightblue", size = 5) +
   geom_node_text(aes(label = name), repel = TRUE) +
-  theme_void()
+  theme_void() +
+  labs(title = "Not living alone") +
+  panel_border()
 
 
-corrgraphscomb <- plot_grid(networkalone, networknotalone,
-                            labels=c("Living alone", "Not living alone")
-                            )
+corrgraphscomb <- plot_grid(networkalone, networknotalone)
 
 title <- ggdraw() + draw_label("Word correlations > 0.25", fontface='bold') # make title
 
