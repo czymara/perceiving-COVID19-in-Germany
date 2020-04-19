@@ -27,9 +27,6 @@ load("coRona2/in/data.RData")
 ## privat topics
 data_priv <- data[ which(data$OF01_01 != ""), ]
 
-data_priv[data_priv$CASE==357, "OF01_01"]
-
-
 corpus_priv <- corpus(as.character(data_priv$OF01_01),
                  docvars = data.frame(socmeduse = data_priv$ME02_03,
                                       lialone = data_priv$lialone

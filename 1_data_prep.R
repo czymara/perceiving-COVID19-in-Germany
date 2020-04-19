@@ -6,7 +6,7 @@
 
 # packages
 packages <- c("readxl", "dplyr", "tidyverse",
-              "magrittr", "tidytext", "quanteda")
+              "magrittr", "tidytext", "quanteda", "textcat")
 lapply(packages, library, character.only = TRUE)
 
 
@@ -70,6 +70,13 @@ data$longquart <- cut(data$lonlindex, breaks=quantile(data$lonlindex,
                       include.lowest = T)
 
 table(data[data$lonlindex == 22, "longquart"]) # disjunkt
+
+
+# check for non german answers
+data$language <- textcat(data$OF01_01)
+table(data$language)
+
+table(data[data$language == "russian-iso8859_5", "OF01_01"])
 
 
 save.image("coRona2/in/data.RData")

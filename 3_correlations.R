@@ -5,7 +5,7 @@
 
 
 # packages
-packages <- c("tidyverse", "magrittr", "rtweet", "tidytext", "widyr", "quanteda", "influential", "ggraph", "cowplot")
+packages <- c("tidyverse", "magrittr", "rtweet", "tidytext", "widyr", "quanteda", "influential", "ggraph", "cowplot", "SnowballC")
 lapply(packages, library, character.only = TRUE)
 
 # dir
@@ -20,59 +20,69 @@ setwd(root.dir)
 # load data
 load("coRona2/in/data.RData")
 
+# convert DFM to tidytext
+privat_lonely_tidy <- tidy(DFM_priv) # common terms are already removed here
+
+
+### create tidy text
+data_priv <- data[ which(data$OF01_01 != ""), ]
+
+answers_priv <- tibble(id = data_priv$CASE,
+                       private = data_priv$lialone,
+                       text = as.character(data_priv$OF01_01))
+
+privat_lonely_tidy <- answers_priv %>% unnest_tokens(word, text)
+
+# stop words
+stopWords_de <- read.table("coRona2/in/stopwords-de.txt", encoding = "UTF-8", colClasses=c('character'))
+
+privat_lonely_tidy_reduc <- privat_lonely_tidy %>% filter(!word %in% c(stopWords_de$V1))
+
+# remove numbers
+privat_lonely_tidy_reduc <- privat_lonely_tidy_reduc[-grep("\\b\\d+\\b", privat_lonely_tidy_reduc$word),]
+
+# stemming
+privat_lonely_tidy_reduc$wordstem <- wordStem(privat_lonely_tidy_reduc$word, language = "de")
+
+
+# listwise deletion
+privat_lonely_tidy <- privat_lonely_tidy_reduc[!is.na(privat_lonely_tidy_reduc$wordstem),]
+
 
 # count words co-occuring within users (id is user ID, I think)
-word_pairs_de <- DE_tweets_prep %>%
-  pairwise_count(word, user_id, sort = TRUE)
+word_pairs_private<- privat_lonely_tidy %>%
+  pairwise_count(wordstem, id, sort = T)
 
-word_pairs_de
+word_pairs_private
 
-word_pairs_en <- EN_tweets_prep %>%
-  pairwise_count(word, user_id, sort = TRUE)
+# occuring with solidaritaet
+word_pairs_private$item1 <- gsub("^soli.*", "soli", word_pairs_private$item1) # stem all solidarity related terms to "soli"
 
-word_pairs_en
+word_pairs_private %>%
+  filter(str_detect(item1, "^soli*"))
 
 
+## phi coefficient: how much more likely is that either word X and Y appear, or neither do, than that one appears without the other
+privat_lonely_tidy$wordstem <- gsub("^soli.*", "soli", privat_lonely_tidy$wordstem)
 
-# which words occurs most often with china?
-word_pairs_de %>%
-  filter(str_detect(item1, "china"))
+privat_lonely_tidy$wordstem <- gsub("^famil.*", "famil", privat_lonely_tidy$wordstem)
 
-word_pairs_en %>%
-  filter(str_detect(item1, "china"))
 
-## phi coefficient: how much more likely is that either both word X and Y appear, or neither do, than that one appears without the other
-# equivalent to Pearson correlation when applied to binary data
-word_cors_de <- DE_tweets_prep %>%
-  group_by(word) %>%
+priv_word_correlations <- privat_lonely_tidy %>%
+  group_by(wordstem) %>%
   filter(n() >= 20) %>% # filter relatively common words
-  pairwise_cor(word, user_id, sort = TRUE)
+  pairwise_cor(wordstem, id, sort = T)
 
-word_cors_de
+priv_word_correlations
 
-word_cors_en <- EN_tweets_prep %>%
-  group_by(word) %>%
-  filter(n() >= 20) %>% # filter relatively common words
-  pairwise_cor(word, user_id, sort = TRUE)
-
-word_cors_en
-
-
-# which words correlates most often with antisemitisch
-word_cors_de %>%
-  filter(str_detect(item1, "china"))
-
-word_cors_en %>%
-  filter(str_detect(item1, "china"))
+# correlating with solidaritaet
+priv_word_correlations %>%
+  filter(str_detect(item1, "famil*")) # not mentioned enough
 
 
 # plot
-word_cors %>%
-  filter(item1 %in% c("china", "afd", "rassismus") |
-           str_detect(item1, "^anti[-]{0,1}semi") |
-           str_detect(item1, "jude") |
-           str_detect(item1, "muslim") |
-           str_detect(item1, "nazi")) %>%
+priv_word_correlations %>%
+  filter(item1 %in% c("angst", "soli", "famil")) %>%
   group_by(item1) %>%
   top_n(6) %>%
   ungroup() %>%
@@ -82,35 +92,22 @@ word_cors %>%
   facet_wrap(~ item1, scales = "free") +
   coord_flip()
 
+dev.copy(png,"coRona2/out/private_word_correlations.png")
+dev.off()
+
+
 # plot as network
-set.seed(2016)
-network_de <- word_cors_de %>%
-  filter(correlation > .6) %>%
+set.seed(1337)
+priv_word_correlations %>%
+  filter(correlation > .25) %>%
   graph_from_data_frame() %>%
   ggraph(layout = "fr") +
   geom_edge_link(aes(edge_alpha = correlation), show.legend = FALSE) +
   geom_node_point(color = "lightblue", size = 5) +
   geom_node_text(aes(label = name), repel = TRUE) +
-  theme_void()
-# + labs(title = "German tweets")
+  theme_void() +
+  labs(title = "Word correlations > 0.25")
 
-set.seed(2016)
-network_en <- word_cors_en %>%
-  filter(correlation > .6) %>%
-  graph_from_data_frame() %>%
-  ggraph(layout = "fr") +
-  geom_edge_link(aes(edge_alpha = correlation), show.legend = FALSE) +
-  geom_node_point(color = "lightblue", size = 5) +
-  geom_node_text(aes(label = name), repel = TRUE) +
-  theme_void()
-# +  labs(title = "English tweets")
-
-corrgraphscomb <- plot_grid(network_de, network_en,
-               labels=c("German tweets", "English tweets")
-               )
-
-title <- ggdraw() + draw_label("Word correlations > 0.6 on COVIT-19 tweets", fontface='bold') # make title
-
-plot_grid(title, corrgraphscomb, ncol=1, rel_heights=c(0.1, 1)) # add title
-
+dev.copy(png,"coRona2/out/private_word_networks.png")
+dev.off()
 
