@@ -111,3 +111,50 @@ priv_word_correlations %>%
 dev.copy(png,"coRona2/out/private_word_networks.png")
 dev.off()
 
+
+## living alone vs. not
+privat_lonely_tidy_alone <- privat_lonely_tidy[ which(privat_lonely_tidy$private == "living alone"), ]
+privat_lonely_tidy_notalone <- privat_lonely_tidy[ which(privat_lonely_tidy$private == "not living alone"), ]
+
+priv_word_correlations_alone <- privat_lonely_tidy_alone %>%
+  group_by(wordstem) %>%
+  filter(n() >= 20) %>% # filter relatively common words
+  pairwise_cor(wordstem, id, sort = T)
+
+priv_word_correlations_notalone <- privat_lonely_tidy_notalone %>%
+  group_by(wordstem) %>%
+  filter(n() >= 20) %>% # filter relatively common words
+  pairwise_cor(wordstem, id, sort = T)
+
+# plot
+set.seed(1337)
+networkalone <- priv_word_correlations_alone %>%
+  filter(correlation > .25) %>%
+  graph_from_data_frame() %>%
+  ggraph(layout = "fr") +
+  geom_edge_link(aes(edge_alpha = correlation), show.legend = FALSE) +
+  geom_node_point(color = "lightblue", size = 5) +
+  geom_node_text(aes(label = name), repel = TRUE) +
+  theme_void()
+
+set.seed(1337)
+networknotalone <- priv_word_correlations_notalone %>%
+  filter(correlation > .25) %>%
+  graph_from_data_frame() %>%
+  ggraph(layout = "fr") +
+  geom_edge_link(aes(edge_alpha = correlation), show.legend = FALSE) +
+  geom_node_point(color = "lightblue", size = 5) +
+  geom_node_text(aes(label = name), repel = TRUE) +
+  theme_void()
+
+
+corrgraphscomb <- plot_grid(networkalone, networknotalone,
+                            labels=c("Living alone", "Not living alone")
+                            )
+
+title <- ggdraw() + draw_label("Word correlations > 0.25", fontface='bold') # make title
+
+plot_grid(title, corrgraphscomb, ncol=1, rel_heights=c(0.1, 1)) # add title
+
+dev.copy(png,"coRona2/out/private_word_networks_livingaloneornot.png")
+dev.off()
