@@ -160,3 +160,5 @@ plot_grid(title, corrgraphscomb, ncol=1, rel_heights=c(0.1, 1)) # add title
 
 dev.copy(png,"coRona2/out/private_word_networks_livingaloneornot.png")
 dev.off()
+
+
