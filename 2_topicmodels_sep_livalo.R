@@ -180,7 +180,7 @@ notlonely_topics <- stm(DFM_notlon,
                         # prevalence =~lialone,
                         data = DFM_notlon@docvars
                         #, control = list(alpha = 1)
-)
+                        )
 
 topic_notlon_privat <- summary(notlonely_topics)
 topic_notlon_privat <- topic_notlon_privat$prob
