@@ -12,7 +12,7 @@ lapply(packages, library, character.only = TRUE)
 
 # dir
 if (Sys.info()["nodename"]=="DBSFCL2"){
-  root.dir <- "C:/Users/czymara.local/PowerFolders/lehrstuhlstuff/Corona Survey/"
+  root.dir <- "C:/Users/czymara.local/PowerFolders/Corona Survey (Alexander Langenkamp)/Topic model project/"
 } #else if (Sys.info()["nodename"]=="..."){
 #root.dir <- "C:/..."
 #}
@@ -20,7 +20,7 @@ if (Sys.info()["nodename"]=="DBSFCL2"){
 setwd(root.dir)
 
 
-load("coRona2/in/data.RData")
+load("analysis/in/data.RData")
 
 Ntopic <- 8
 
@@ -52,7 +52,7 @@ toks_londum <- tokens(corpus_londum, remove_punct = T,
                    remove_url = T,
                    include_docvars = T)
 
-stopWords_de <- read.table("coRona2/in/stopwords-de.txt", encoding = "UTF-8", colClasses=c("character"))
+stopWords_de <- read.table("analysis/in/stopwords-de.txt", encoding = "UTF-8", colClasses=c("character"))
 
 toks_londum <-  tokens_remove(toks_londum, c(stopWords_de$V1, stopwords("german")),
                            case_insensitive = TRUE, padding = FALSE)
@@ -86,7 +86,7 @@ summary(lonelydum_topics)
 
 sapply(1:8, function(x){
   plot(lonelydum_topics, type = "perspectives", topics = x)
-  dev.copy(png,paste("coRona2/out/topiccomp/private_topic_lonely_", x, ".png", sep=""))
+  dev.copy(png,paste("analysis/out/topiccomp/private_topic_lonely_", x, ".png", sep=""))
   dev.off()
   })
 
@@ -137,11 +137,11 @@ lonely_topics <- stm(DFM_lon,
 topic_lon_privat <- summary(lonely_topics)
 topic_lon_privat <- topic_lon_privat$prob
 
-write.xlsx(topic_lon_privat, file = "coRona2/out/private_topics_lonely.xlsx")
+write.xlsx(topic_lon_privat, file = "analysis/out/private_topics_lonely.xlsx")
 
 
 plot(lonely_topics, type = "summary")
-dev.copy(png,"coRona2/out/private_topic_lonely_freq.png")
+dev.copy(png,"analysis/out/private_topic_lonely_freq.png")
 dev.off()
 
 
@@ -190,10 +190,10 @@ notlonely_topics <- stm(DFM_notlon,
 topic_notlon_privat <- summary(notlonely_topics)
 topic_notlon_privat <- topic_notlon_privat$prob
 
-write.xlsx(topic_notlon_privat, file = "coRona2/out/private_topics_notlonely.xlsx")
+write.xlsx(topic_notlon_privat, file = "analysis/out/private_topics_notlonely.xlsx")
 
 
 plot(notlonely_topics, type = "summary")
-dev.copy(png,"coRona2/out/private_topic_notlonely_freq.png")
+dev.copy(png,"analysis/out/private_topic_notlonely_freq.png")
 dev.off()
 

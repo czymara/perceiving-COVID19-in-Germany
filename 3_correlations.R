@@ -10,7 +10,7 @@ lapply(packages, library, character.only = TRUE)
 
 # dir
 if (Sys.info()["nodename"]=="DBSFCL2"){
-  root.dir <- "C:/Users/czymara.local/PowerFolders/lehrstuhlstuff/Corona Survey/"
+  root.dir <- "C:/Users/czymara.local/PowerFolders/Corona Survey (Alexander Langenkamp)/Topic model project/"
 } #else if (Sys.info()["nodename"]=="..."){
 #root.dir <- "C:/..."
 #}
@@ -34,7 +34,7 @@ answers_priv <- tibble(id = data_priv$CASE,
 privat_lonely_tidy <- answers_priv %>% unnest_tokens(word, text)
 
 # stop words
-stopWords_de <- read.table("coRona2/in/stopwords-de.txt", encoding = "UTF-8", colClasses=c('character'))
+stopWords_de <- read.table("analysis/in/stopwords-de.txt", encoding = "UTF-8", colClasses=c('character'))
 
 privat_lonely_tidy_reduc <- privat_lonely_tidy %>% filter(!word %in% c(stopWords_de$V1))
 
@@ -92,7 +92,7 @@ priv_word_correlations %>%
   facet_wrap(~ item1, scales = "free") +
   coord_flip()
 
-dev.copy(png,"coRona2/out/private_word_correlations.png")
+dev.copy(png,"analysis/out/private_word_correlations.png")
 dev.off()
 
 
@@ -108,7 +108,7 @@ priv_word_correlations %>%
   theme_void() +
   labs(title = "Word correlations > 0.25")
 
-dev.copy(png,"coRona2/out/private_word_networks.png")
+dev.copy(png,"analysis/out/private_word_networks.png")
 dev.off()
 
 
@@ -158,7 +158,7 @@ title <- ggdraw() + draw_label("Word correlations > 0.25", fontface='bold') # ma
 
 plot_grid(title, corrgraphscomb, ncol=1, rel_heights=c(0.1, 1)) # add title
 
-dev.copy(png,"coRona2/out/private_word_networks_livingaloneornot.png")
+dev.copy(png,"analysis/out/private_word_networks_livingaloneornot.png")
 dev.off()
 
 

@@ -12,14 +12,15 @@ lapply(packages, library, character.only = TRUE)
 
 # dir
 if (Sys.info()["nodename"]=="DBSFCL2"){
-  root.dir <- "C:/Users/czymara.local/PowerFolders/lehrstuhlstuff/Corona Survey/"
+  root.dir <- "C:/Users/czymara.local/PowerFolders/Corona Survey (Alexander Langenkamp)/Topic model project/"
 } #else if (Sys.info()["nodename"]=="..."){
 #root.dir <- "C:/..."
 #}
 
 setwd(root.dir)
 
-data <- read.csv("Backup 08.04/sdata_corona-survey_2020-04-08_10-58.csv", header = TRUE, sep = "\t", encoding = "UTF-8")
+data <- read.csv("C:/Users/czymara.local/PowerFolders/Corona Survey (Alexander Langenkamp)/Backup 08.04/sdata_corona-survey_2020-04-08_10-58.csv",
+                 header = TRUE, sep = "\t", encoding = "UTF-8")
 
 head(data$OF01_01) # privat
 
@@ -79,6 +80,6 @@ table(data$language)
 table(data[data$language == "russian-iso8859_5", "OF01_01"])
 
 
-save.image("coRona2/in/data.RData")
+save.image("analysis/in/data.RData")
 
 
