@@ -17,11 +17,22 @@ if (Sys.info()["nodename"]=="DBSFCL2"){
 
 setwd(root.dir)
 
+SEED <- 1337
+
+options(stringsAsFactors = FALSE)
+library(ggplot2); theme_set(theme_bw() +
+                              theme(axis.line = element_line(colour = "black"),
+                                    panel.grid.major = element_blank(),
+                                    panel.grid.minor = element_blank(),
+                                    panel.border = element_blank(),
+                                    panel.background = element_blank()))
+
+
 # load data
-load("coRona2/in/data.RData")
+load("analysis/in/data.RData")
 
 # convert DFM to tidytext
-privat_lonely_tidy <- tidy(DFM_priv) # common terms are already removed here
+# privat_lonely_tidy <- tidy(DFM_priv) # common terms are already removed here
 
 
 ### create tidy text
@@ -77,7 +88,7 @@ priv_word_correlations
 
 # correlating with solidaritaet
 priv_word_correlations %>%
-  filter(str_detect(item1, "famil*")) # not mentioned enough
+  filter(str_detect(item1, "soli*")) # not mentioned enough
 
 
 # plot
@@ -97,7 +108,7 @@ dev.off()
 
 
 # plot as network
-set.seed(1337)
+set.seed(SEED)
 priv_word_correlations %>%
   filter(correlation > .25) %>%
   graph_from_data_frame() %>%
@@ -112,7 +123,10 @@ dev.copy(png,"analysis/out/private_word_networks.png")
 dev.off()
 
 
-## living alone vs. not
+###
+# living alone vs. not
+###
+
 privat_lonely_tidy_alone <- privat_lonely_tidy[ which(privat_lonely_tidy$private == "living alone"), ]
 privat_lonely_tidy_notalone <- privat_lonely_tidy[ which(privat_lonely_tidy$private == "not living alone"), ]
 
@@ -126,8 +140,51 @@ priv_word_correlations_notalone <- privat_lonely_tidy_notalone %>%
   filter(n() >= 20) %>% # filter relatively common words
   pairwise_cor(wordstem, id, sort = T)
 
-# plot
-set.seed(1337)
+
+## plot word correlations
+# alone
+set.seed(SEED)
+corralone <- priv_word_correlations_alone %>%
+  filter(item1 %in% c("angst", "famil")) %>%
+  group_by(item1) %>%
+  top_n(6) %>%
+  ungroup() %>%
+  mutate(item2 = reorder(item2, correlation)) %>%
+  ggplot(aes(item2, correlation)) +
+  geom_bar(stat = "identity") +
+  facet_wrap(~ item1, scales = "free") +
+  xlab("") +
+  labs(title = "Living alone") +
+  coord_flip()
+
+# not alone
+set.seed(SEED)
+corrnotalone <- priv_word_correlations_notalone %>%
+  filter(item1 %in% c("angst", "famil")) %>%
+  group_by(item1) %>%
+  top_n(6) %>%
+  ungroup() %>%
+  mutate(item2 = reorder(item2, correlation)) %>%
+  ggplot(aes(item2, correlation)) +
+  geom_bar(stat = "identity") +
+  facet_wrap(~ item1, scales = "free") +
+  xlab("") +
+  labs(title = "Not living alone") +
+  coord_flip()
+
+graphscomb_corr <- plot_grid(corralone, corrnotalone)
+
+title_corr <- ggdraw() + draw_label("Correlations of selected terms for those living alone
+                               and those not", fontface='bold') # make title
+
+plot_grid(title_corr, graphscomb_corr, ncol=1, rel_heights=c(0.1, 1)) # add title
+
+dev.copy(png,"analysis/out/private_word_correlations_livingaloneornot.png", width=800)
+dev.off()
+
+
+# plot network
+set.seed(SEED)
 networkalone <- priv_word_correlations_alone %>%
   filter(correlation > .25) %>%
   graph_from_data_frame() %>%
@@ -139,7 +196,7 @@ networkalone <- priv_word_correlations_alone %>%
   labs(title = "Living alone") +
   panel_border()
 
-set.seed(1337)
+set.seed(SEED)
 networknotalone <- priv_word_correlations_notalone %>%
   filter(correlation > .25) %>%
   graph_from_data_frame() %>%
@@ -152,11 +209,11 @@ networknotalone <- priv_word_correlations_notalone %>%
   panel_border()
 
 
-corrgraphscomb <- plot_grid(networkalone, networknotalone)
+graphscomb_network <- plot_grid(networkalone, networknotalone)
 
-title <- ggdraw() + draw_label("Word correlations > 0.25", fontface='bold') # make title
+title_network <- ggdraw() + draw_label("Word correlations > 0.25", fontface='bold') # make title
 
-plot_grid(title, corrgraphscomb, ncol=1, rel_heights=c(0.1, 1)) # add title
+plot_grid(title_network, graphscomb_network, ncol=1, rel_heights=c(0.1, 1)) # add title
 
 dev.copy(png,"analysis/out/private_word_networks_livingaloneornot.png")
 dev.off()
