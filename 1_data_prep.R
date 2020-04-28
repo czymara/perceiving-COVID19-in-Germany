@@ -19,7 +19,7 @@ if (Sys.info()["nodename"]=="DBSFCL2"){
 
 setwd(root.dir)
 
-data <- read.csv("C:/Users/czymara.local/PowerFolders/Corona Survey (Alexander Langenkamp)/Backup 08.04/sdata_corona-survey_2020-04-08_10-58.csv",
+data <- read.csv("analysis/in/sdata_corona-survey_start till easter.csv",
                  header = TRUE, sep = "\t", encoding = "UTF-8")
 
 head(data$OF01_01) # privat

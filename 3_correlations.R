@@ -5,7 +5,9 @@
 
 
 # packages
-packages <- c("tidyverse", "magrittr", "rtweet", "tidytext", "widyr", "quanteda", "influential", "ggraph", "cowplot", "SnowballC")
+packages <- c("tidyverse", "magrittr", "rtweet",
+              "tidytext", "widyr", "quanteda",
+              "influential", "ggraph", "cowplot", "SnowballC")
 lapply(packages, library, character.only = TRUE)
 
 # dir
@@ -174,8 +176,7 @@ corrnotalone <- priv_word_correlations_notalone %>%
 
 graphscomb_corr <- plot_grid(corralone, corrnotalone)
 
-title_corr <- ggdraw() + draw_label("Correlations of selected terms for those living alone
-                               and those not", fontface='bold') # make title
+title_corr <- ggdraw() + draw_label("Correlations of selected terms", fontface='bold') # make title
 
 plot_grid(title_corr, graphscomb_corr, ncol=1, rel_heights=c(0.1, 1)) # add title
 
@@ -211,7 +212,7 @@ networknotalone <- priv_word_correlations_notalone %>%
 
 graphscomb_network <- plot_grid(networkalone, networknotalone)
 
-title_network <- ggdraw() + draw_label("Word correlations > 0.25", fontface='bold') # make title
+title_network <- ggdraw() + draw_label("Word correlations (>0.25)", fontface='bold') # make title
 
 plot_grid(title_network, graphscomb_network, ncol=1, rel_heights=c(0.1, 1)) # add title
 
