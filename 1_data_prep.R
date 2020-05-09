@@ -51,9 +51,20 @@ remove(mediavars)
 data %<>%
   mutate(lialone = if_else(DE06==3,
                            "living alone",
-                           "not living alone"))
+                           "not living alone")) %>%
+  mutate(wohntyp = if_else(DE06==3,
+                           "living alone",
+                           if_else(DE06==1,
+                                   "couple with kids",
+                                   if_else(DE06==4,
+                                           "single parent",
+                                           if_else(DE06==2 | DE06==5,
+                                   "not alone, no kids",
+                                   NULL)))))
 
-table(data$lialone)
+data$wohntyp <- as.factor(data$wohntyp)
+
+table(data$wohntyp)
 
 # loniless index
 lonvars_neg <- c("LO01_01", "LO01_04", "LO01_06",

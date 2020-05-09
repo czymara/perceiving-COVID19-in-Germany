@@ -1,6 +1,6 @@
 
 #####
-# TOPIC MODELS (total)
+# TOPIC MODELS (gender diff)
 #####
 
 
@@ -35,26 +35,32 @@ load("analysis/in/data.RData")
 # TOPIC MODELS
 ###
 
-### privat item
-data_priv <- data[ which(data$OF01_01 != ""), ]
+# gender variable
+data %<>%
+  mutate(gender = if_else(DE03==1,
+                          "male",
+                          if_else(DE03==2,
+                                  "female",
+                                  NULL)))
 
+data_priv <- data[ which(data$OF01_01 != ""), ]
 corpus_priv <- corpus(as.character(data_priv$OF01_01),
-                 docvars = data.frame(socmeduse = data_priv$ME02_03,
-                                      lialone = data_priv$lialone
-                                      ))
+                      docvars = data.frame(gender = data_priv$gender,
+                                           id = data_priv$CASE
+                                           ))
 
 toks_priv <- tokens(corpus_priv, remove_punct = T,
-               remove_numbers = T,
-               remove_symbols = T,
-               remove_separators = F,
-               split_hyphens = T,
-               remove_url = T,
-               include_docvars = T)
+                    remove_numbers = T,
+                    remove_symbols = T,
+                    remove_separators = F,
+                    split_hyphens = T,
+                    remove_url = T,
+                    include_docvars = T)
 
 stopWords_de <- read.table("analysis/in/stopwords-de.txt", encoding = "UTF-8", colClasses=c("character"))
 
 toks_priv <-  tokens_remove(toks_priv, c(stopWords_de$V1, stopwords("german")),
-                       case_insensitive = TRUE, padding = FALSE)
+                            case_insensitive = TRUE, padding = FALSE)
 
 toks_priv <- tokens_wordstem(toks_priv, language = "german")
 
@@ -66,42 +72,45 @@ DFM_priv <- dfm_trim(DFM_priv, max_docfreq = 0.20,  min_docfreq = 0.001, docfreq
 rowsum_priv <- apply(DFM_priv , 1, sum) # identify text with no common terms
 DFM_priv   <- DFM_priv[rowsum_priv > 0, ]  #remove all docs without these terms
 
-DFM_priv <- DFM_priv[complete.cases(DFM_priv@docvars$lialone), ] # listwise deletion
+DFM_priv <- DFM_priv[complete.cases(DFM_priv@docvars$gender), ] # listwise deletion
 
-
-### und los
 Ntopic <- 8
 
 set.seed(SEED)
-private_topics <- stm(DFM_priv,
-                    K = Ntopic,
-                    seed = 1337,
-                    verbose = F,
-                    init.type = "Spectral",
-                    prevalence = ~lialone,
-                    data = DFM_priv@docvars,
-                    # content = ~lialone
-                    #, control = list(alpha = 1)
-                    )
+gender_topics <- stm(DFM_priv,
+                      K = Ntopic,
+                      seed = 1337,
+                      verbose = F,
+                      init.type = "Spectral",
+                      prevalence = ~gender,
+                      data = DFM_priv@docvars,
+                      # content = ~lialone
+                      #, control = list(alpha = 1)
+                      )
 
-topic_prob_privat <- summary(private_topics)
-topic_prob_privat <- t(topic_prob_privat$prob)
-colnames(topic_prob_privat) <- sapply(1:8, function(x) paste0("Topic ", x))
 
-write.xlsx(topic_prob_privat, file = "analysis/out/private_topics.xlsx")
+#corpusred <- corpus_subset(corpus_priv, id %in% DFM_priv@docvars$id)
+#examplecomments <- findThoughts(private_topics, texts = corpusred,
+#            n = 2, topics = 5)
+
+# plotQuote(examplecomments, width = 30, main = "Financial worries")
+
+
+topic_prob_gender <- summary(gender_topics)
+topic_prob_gender <- t(topic_prob_gender$prob)
+colnames(topic_prob_gender) <- sapply(1:8, function(x) paste0("Topic ", x))
+
+write.xlsx(topic_prob_gender,
+           file = paste0("analysis/out/gender/    topics.xlsx"))
+
 
 # topics per document
-beta <- tidy(private_topics)
+beta <- tidy(gender_topics)
 
 # words per topic
-gamma <- tidy(private_topics, matrix = "gamma",
-              document_names = rownames(DFM_priv)
-              )
+gamma <- tidy(gender_topics, matrix = "gamma",
+              document_names = rownames(DFM_priv))
 
-# plot
-plot(private_topics, type = "summary")
-dev.copy(png,"analysis/out/private_topic_freq.png")
-dev.off()
 
 # version2
 topterms_pertopic <- beta %>%
@@ -120,7 +129,7 @@ gamma_terms <- gamma %>%
   summarise(gamma = mean(gamma)) %>%
   #  arrange(desc(gamma)) %>%
   mutate(topic = as.matrix(topterms_pertopic[2]),
-    topic = reorder(topic, gamma))
+         topic = reorder(topic, gamma))
 
 gamma_terms %>%
   ggplot(aes(x = reorder(topic, gamma), gamma)) +
@@ -134,26 +143,22 @@ gamma_terms %>%
         panel.border = element_blank(),
         panel.background = element_blank())
 
-dev.copy(png,"analysis/out/private_topic_freq_v2.png")
+dev.copy(png,"analysis/out/gender/topic_freq.png")
 dev.off()
 
 
+# difference between genders
+est <- estimateEffect(1:Ntopic ~ gender, gender_topics,
+                      meta = DFM_priv@docvars, uncertainty = "Global")
 
-# difference for those living alone
-est <- estimateEffect(1:Ntopic ~ lialone, private_topics,
-                       meta = DFM_priv@docvars, uncertainty = "Global")
+# plot gender differences
 
-# plot
-plot(est, covariate = "lialone",
+# ref plot
+plot(est, covariate = "gender",
      model = private_topics, method = "difference",
-     cov.value1 = "living alone", cov.value2 = "not living alone",
-     xlab = "Not living alone ..... living alone",
-     main = "Effect of living alone")
+     cov.value1 = "male", cov.value2 = "female")
 
-dev.copy(png,"analysis/out/private_effect_alone.png")
-dev.off()
-
-# version 2
+# better version
 effects <- sapply(1:8, function(x) est$parameters[[x]][[x]]$est[2])
 se <- sapply(1:8, function(x) sqrt(est$parameters[[x]][[x]]$vcov[2,2]))
 
@@ -164,7 +169,7 @@ effecttable$CIlower <- effecttable$effects - 1.96*effecttable$se
 effecttable <- effecttable*-1
 effecttable %<>%
   mutate(sig = if_else(CIupper<0 & CIlower<0 |
-                       CIupper>0 & CIlower>0,
+                         CIupper>0 & CIlower>0,
                        1, 0))
 effecttable$labels <- with(gamma_terms, reorder(topic, gamma))[1:8]
 
@@ -177,9 +182,11 @@ ggplot(data = effecttable) +
   geom_errorbarh(aes(xmin=CIlower, xmax=CIupper,
                      y = gamma_terms$topic[1:8],
                      alpha = 0.2, colour = "grey")) +
-  xlab("Effect of living alone") + ylab("Topics") +
+  xlab("Differences between women compared to men") + ylab("Topics") +
   theme(legend.position = "none")
 
-dev.copy(png,"analysis/out/private_effect_alone_v2.png")
+dev.copy(png,"analysis/out/gender/gender_effect.png")
 dev.off()
+
+
 
