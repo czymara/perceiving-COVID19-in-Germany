@@ -89,9 +89,28 @@ gender_topics <- stm(DFM_priv,
                       )
 
 
-#corpusred <- corpus_subset(corpus_priv, id %in% DFM_priv@docvars$id)
-#examplecomments <- findThoughts(private_topics, texts = corpusred,
-#            n = 2, topics = 5)
+corpusred <- corpus_subset(corpus_priv, id %in% DFM_priv@docvars$id)
+examplecomments <- findThoughts(gender_topics, texts = corpusred,
+            n = 2, topics = c(6, 8, 7, 1))
+
+# 6 and 8 more likely for women:
+examplecomments$docs$`Topic 6`[[1]]
+examplecomments$docs$`Topic 6`[[2]]
+docvars(examplecomments$docs$`Topic 6`)
+
+examplecomments$docs$`Topic 8`[[1]]
+examplecomments$docs$`Topic 8`[[2]]
+docvars(examplecomments$docs$`Topic 8`)
+
+# 7 and 1 more likely for men
+examplecomments$docs$`Topic 7`[[1]]
+examplecomments$docs$`Topic 7`[[2]]
+docvars(examplecomments$docs$`Topic 7`)
+
+examplecomments$docs$`Topic 1`[[1]]
+examplecomments$docs$`Topic 1`[[2]]
+docvars(examplecomments$docs$`Topic 1`)
+
 
 # plotQuote(examplecomments, width = 30, main = "Financial worries")
 
