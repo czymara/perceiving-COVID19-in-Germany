@@ -88,6 +88,16 @@ gender_topics <- stm(DFM_priv,
                       #, control = list(alpha = 1)
                       )
 
+# topic names
+topicNames <- c("Economy", # 1
+               "Everyday life", # 2
+               "Family", # 3
+               "Individual worries", # 4
+               "Society", # 5
+               "Social contacts", # 6
+               "Work", # 7
+               "Children") # 8
+
 
 corpusred <- corpus_subset(corpus_priv, id %in% DFM_priv@docvars$id)
 examplecomments <- findThoughts(gender_topics, texts = corpusred,
@@ -117,10 +127,10 @@ docvars(examplecomments$docs$`Topic 1`)
 
 topic_prob_gender <- summary(gender_topics)
 topic_prob_gender <- t(topic_prob_gender$prob)
-colnames(topic_prob_gender) <- sapply(1:8, function(x) paste0("Topic ", x))
+colnames(topic_prob_gender) <- topicNames
 
 write.xlsx(topic_prob_gender,
-           file = paste0("analysis/out/gender/    topics.xlsx"))
+           file = paste0("analysis/out/gender/topics.xlsx"))
 
 
 # topics per document
@@ -147,7 +157,7 @@ gamma_terms <- gamma %>%
   group_by(topic) %>%
   summarise(gamma = mean(gamma)) %>%
   #  arrange(desc(gamma)) %>%
-  mutate(topic = as.matrix(topterms_pertopic[2]),
+  mutate(topic = topicNames,
          topic = reorder(topic, gamma))
 
 gamma_terms %>%
@@ -193,7 +203,7 @@ effecttable %<>%
 effecttable$labels <- with(gamma_terms, reorder(topic, gamma))[1:8]
 
 ggplot(data = effecttable) +
-  geom_point(aes(y = gamma_terms$topic[1:8],
+  geom_point(aes(y = topicNames,
                  x = effects,
                  colour = as.factor(sig))) +
   geom_vline(xintercept = 0, # linetype=4,
@@ -201,11 +211,9 @@ ggplot(data = effecttable) +
   geom_errorbarh(aes(xmin=CIlower, xmax=CIupper,
                      y = gamma_terms$topic[1:8],
                      alpha = 0.2, colour = "grey")) +
-  xlab("Differences between women compared to men") + ylab("Topics") +
+  xlab("Differences of women compared to men") + ylab("Topics") +
   theme(legend.position = "none")
 
 dev.copy(png,"analysis/out/gender/gender_effect.png")
 dev.off()
-
-
 
