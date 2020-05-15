@@ -120,7 +120,7 @@ topic_prob_gender <- t(topic_prob_gender$prob)
 colnames(topic_prob_gender) <- sapply(1:8, function(x) paste0("Topic ", x))
 
 write.xlsx(topic_prob_gender,
-           file = paste0("analysis/out/gender/    topics.xlsx"))
+           file = paste0("analysis/out/gender/topics.xlsx"))
 
 
 # topics per document
