@@ -88,16 +88,6 @@ gender_topics <- stm(DFM_priv,
                       #, control = list(alpha = 1)
                       )
 
-# topic names
-topicNames <- c("Economy", # 1
-               "Everyday life", # 2
-               "Family", # 3
-               "Individual worries", # 4
-               "Society", # 5
-               "Social contacts", # 6
-               "Work", # 7
-               "Children") # 8
-
 
 corpusred <- corpus_subset(corpus_priv, id %in% DFM_priv@docvars$id)
 examplecomments <- findThoughts(gender_topics, texts = corpusred,
@@ -124,9 +114,20 @@ docvars(examplecomments$docs$`Topic 1`)
 
 # plotQuote(examplecomments, width = 30, main = "Financial worries")
 
-
+# table
 topic_prob_gender <- summary(gender_topics)
 topic_prob_gender <- t(topic_prob_gender$prob)
+
+# topic names
+topicNames <- c("Economy", # 1
+                "Everyday life", # 2
+                "Family", # 3
+                "Individual worries", # 4
+                "Society", # 5
+                "Social contacts", # 6
+                "Work", # 7
+                "Children") # 8
+
 colnames(topic_prob_gender) <- topicNames
 
 write.xlsx(topic_prob_gender,
@@ -141,7 +142,7 @@ gamma <- tidy(gender_topics, matrix = "gamma",
               document_names = rownames(DFM_priv))
 
 
-# version2
+# plot
 topterms_pertopic <- beta %>%
   arrange(beta) %>%
   group_by(topic) %>%
@@ -184,7 +185,7 @@ est <- estimateEffect(1:Ntopic ~ gender, gender_topics,
 
 # ref plot
 plot(est, covariate = "gender",
-     model = private_topics, method = "difference",
+     model = gender_topics, method = "difference",
      cov.value1 = "male", cov.value2 = "female")
 
 # better version
@@ -203,15 +204,15 @@ effecttable %<>%
 effecttable$labels <- with(gamma_terms, reorder(topic, gamma))[1:8]
 
 ggplot(data = effecttable) +
-  geom_point(aes(y = topicNames,
+  geom_point(aes(y = labels,
                  x = effects,
                  colour = as.factor(sig))) +
   geom_vline(xintercept = 0, # linetype=4,
              colour="black") +
   geom_errorbarh(aes(xmin=CIlower, xmax=CIupper,
-                     y = gamma_terms$topic[1:8],
+                     y = labels,
                      alpha = 0.2, colour = "grey")) +
-  xlab("Differences of women compared to men") + ylab("Topics") +
+  xlab("Differences of women compared to men") + ylab("") +
   theme(legend.position = "none")
 
 dev.copy(png,"analysis/out/gender/gender_effect.png")
