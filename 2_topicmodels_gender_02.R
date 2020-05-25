@@ -212,7 +212,7 @@ ggplot(data = effecttable) +
   geom_errorbarh(aes(xmin=CIlower, xmax=CIupper,
                      y = labels,
                      alpha = 0.2, colour = "grey")) +
-  xlab("Women                                                                Men") + ylab("") +
+  xlab("Men                                                                Women") + ylab("") +
   theme(legend.position = "none")
 
 dev.copy(png,"analysis/out/gender/gender_effect.png")
