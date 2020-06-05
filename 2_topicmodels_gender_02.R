@@ -125,8 +125,8 @@ topicNames <- c("Economy", # 1
                 "Individual worries", # 4
                 "Society", # 5
                 "Social contacts", # 6
-                "Work", # 7
-                "Children") # 8
+                "Paid work", # 7
+                "Childcare") # 8
 
 colnames(topic_prob_gender) <- topicNames
 
@@ -203,6 +203,7 @@ effecttable %<>%
                        1, 0))
 effecttable$labels <- with(gamma_terms, reorder(topic, gamma))[1:8]
 
+win.metafile("analysis/out/gender/gender_effect.wmf")
 ggplot(data = effecttable) +
   geom_point(aes(y = labels,
                  x = effects,
@@ -211,10 +212,8 @@ ggplot(data = effecttable) +
              colour="black") +
   geom_errorbarh(aes(xmin=CIlower, xmax=CIupper,
                      y = labels,
-                     alpha = 0.2, colour = "grey")) +
+                     colour = "grey")) +
   xlab("Men                                                                Women") + ylab("") +
   theme(legend.position = "none")
-
-dev.copy(png,"analysis/out/gender/gender_effect.png")
 dev.off()
 
