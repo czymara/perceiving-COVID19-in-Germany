@@ -12,7 +12,7 @@ lapply(packages, library, character.only = TRUE)
 
 # dir
 if (Sys.info()["nodename"]=="DBSFCL2"){
-  root.dir <- "C:/Users/czymara.local/PowerFolders/Corona Survey (Alexander Langenkamp)/Topic model project/"
+  root.dir <- "C:/Users/czymara.local/PowerFolders/projects/CoronaTopicModels/"
 } #else if (Sys.info()["nodename"]=="..."){
 #root.dir <- "C:/..."
 #}

@@ -12,7 +12,7 @@ lapply(packages, library, character.only = TRUE)
 
 # dir
 if (Sys.info()["nodename"]=="DBSFCL2"){
-  root.dir <- "C:/Users/czymara.local/PowerFolders/Corona Survey (Alexander Langenkamp)/Topic model project/"
+  root.dir <- "C:/Users/czymara.local/PowerFolders/projects/CoronaTopicModels/"
 } #else if (Sys.info()["nodename"]=="..."){
 #root.dir <- "C:/..."
 #}
@@ -37,15 +37,19 @@ load("analysis/in/data.RData")
 
 # gender variable
 data %<>%
-  mutate(gender = if_else(DE03==1,
+  mutate(gender = if_else(DE03 == 1,
                           "male",
                           if_else(DE03==2,
                                   "female",
-                                  NULL)))
+                                  NULL))) %>%
+  mutate(kids = if_else(wohntyp == "couple with kids" | wohntyp == "single parent",
+                        "kids",
+                        "no kids"))
 
 data_priv <- data[ which(data$OF01_01 != ""), ]
 corpus_priv <- corpus(as.character(data_priv$OF01_01),
                       docvars = data.frame(gender = data_priv$gender,
+                                           kids = data_priv$kids,
                                            id = data_priv$CASE
                                            ))
 
@@ -72,7 +76,9 @@ DFM_priv <- dfm_trim(DFM_priv, max_docfreq = 0.20,  min_docfreq = 0.001, docfreq
 rowsum_priv <- apply(DFM_priv , 1, sum) # identify text with no common terms
 DFM_priv   <- DFM_priv[rowsum_priv > 0, ]  #remove all docs without these terms
 
-DFM_priv <- DFM_priv[complete.cases(DFM_priv@docvars$gender), ] # listwise deletion
+# listwise deletion
+DFM_priv <- DFM_priv[complete.cases(DFM_priv@docvars$gender), ]
+DFM_priv <- DFM_priv[complete.cases(DFM_priv@docvars$kids), ]
 
 Ntopic <- 8
 
@@ -82,7 +88,7 @@ gender_topics <- stm(DFM_priv,
                       seed = 1337,
                       verbose = F,
                       init.type = "Spectral",
-                      prevalence = ~gender,
+                      prevalence = ~gender*kids,
                       data = DFM_priv@docvars,
                       # content = ~lialone
                       #, control = list(alpha = 1)
@@ -178,7 +184,7 @@ dev.off()
 
 
 # difference between genders
-est <- estimateEffect(1:Ntopic ~ gender, gender_topics,
+est <- estimateEffect(1:Ntopic ~ gender*kids, gender_topics,
                       meta = DFM_priv@docvars, uncertainty = "Global")
 
 # plot gender differences
@@ -186,7 +192,12 @@ est <- estimateEffect(1:Ntopic ~ gender, gender_topics,
 # ref plot
 plot(est, covariate = "gender",
      model = gender_topics, method = "difference",
-     cov.value1 = "male", cov.value2 = "female")
+     cov.value1 = "male", cov.value2 = "female",
+     moderator = "kids", moderator.value = "kids")
+plot(est, covariate = "gender",
+     model = gender_topics, method = "difference",
+     cov.value1 = "male", cov.value2 = "female",
+     moderator = "kids", moderator.value = "no kids")
 
 # better version
 effects <- sapply(1:8, function(x) est$parameters[[x]][[x]]$est[2])
