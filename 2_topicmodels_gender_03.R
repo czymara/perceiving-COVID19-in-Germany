@@ -50,12 +50,6 @@ data %<>%
                         if_else(DE06 == 2,
                         "no kids", NULL)))
 
-# keep only couples living together
-# data <- data[!is.na(data$kids2), ]
-
-# only without kids
-data_priv <- data[ which(data$kids == "kids"), ]
-
 
 data_priv <- data[ which(data$OF01_01 != ""), ]
 corpus_priv <- corpus(as.character(data_priv$OF01_01),
@@ -120,11 +114,11 @@ write.table(as.character(examplecomments$docs),
 # 6 and 8 more likely for women:
 examplecomments$docs$`Topic 1`[[1]]
 examplecomments$docs$`Topic 1`[[2]]
-docvars(examplecomments$docs$`Topic 1`)
+docvars(examplecomments$docs$`Topic 1`)[-2]
 
 examplecomments$docs$`Topic 7`[[1]]
 examplecomments$docs$`Topic 7`[[2]]
-docvars(examplecomments$docs$`Topic 7`)
+docvars(examplecomments$docs$`Topic 7`)[-2]
 
 # 7 and 1 more likely for men
 examplecomments$docs$`Topic 6`[[1]]
