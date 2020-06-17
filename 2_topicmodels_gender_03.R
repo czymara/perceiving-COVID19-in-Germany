@@ -44,7 +44,18 @@ data %<>%
                                   NULL))) %>%
   mutate(kids = if_else(wohntyp == "couple with kids" | wohntyp == "single parent",
                         "kids",
-                        "no kids"))
+                        "no kids")) %>%
+  mutate(couple_kids = if_else(DE06 == 1,
+                        "kids",
+                        if_else(DE06 == 2,
+                        "no kids", NULL)))
+
+# keep only couples living together
+# data <- data[!is.na(data$kids2), ]
+
+# only without kids
+data_priv <- data[ which(data$kids == "kids"), ]
+
 
 data_priv <- data[ which(data$OF01_01 != ""), ]
 corpus_priv <- corpus(as.character(data_priv$OF01_01),
@@ -78,7 +89,7 @@ DFM_priv   <- DFM_priv[rowsum_priv > 0, ]  #remove all docs without these terms
 
 # listwise deletion
 DFM_priv <- DFM_priv[complete.cases(DFM_priv@docvars$gender), ]
-DFM_priv <- DFM_priv[complete.cases(DFM_priv@docvars$kids), ]
+# DFM_priv <- DFM_priv[complete.cases(DFM_priv@docvars$kids), ]
 
 Ntopic <- 8
 
@@ -88,18 +99,34 @@ gender_topics <- stm(DFM_priv,
                       seed = 1337,
                       verbose = F,
                       init.type = "Spectral",
-                      prevalence = ~gender*kids,
+                      prevalence = ~gender,
                       data = DFM_priv@docvars,
                       # content = ~lialone
                       #, control = list(alpha = 1)
                       )
 
+summary(gender_topics)
 
 corpusred <- corpus_subset(corpus_priv, id %in% DFM_priv@docvars$id)
 examplecomments <- findThoughts(gender_topics, texts = corpusred,
-            n = 2, topics = c(6, 8, 7, 1))
+            n = 10, topics = c(1, 7, 6, 8))
+
+# export
+write.table(as.character(examplecomments$docs),
+            file = "analysis/out/gender/examplecomments.txt",
+            sep = "\t",
+            row.names = FALSE)
 
 # 6 and 8 more likely for women:
+examplecomments$docs$`Topic 1`[[1]]
+examplecomments$docs$`Topic 1`[[2]]
+docvars(examplecomments$docs$`Topic 1`)
+
+examplecomments$docs$`Topic 7`[[1]]
+examplecomments$docs$`Topic 7`[[2]]
+docvars(examplecomments$docs$`Topic 7`)
+
+# 7 and 1 more likely for men
 examplecomments$docs$`Topic 6`[[1]]
 examplecomments$docs$`Topic 6`[[2]]
 docvars(examplecomments$docs$`Topic 6`)
@@ -107,15 +134,6 @@ docvars(examplecomments$docs$`Topic 6`)
 examplecomments$docs$`Topic 8`[[1]]
 examplecomments$docs$`Topic 8`[[2]]
 docvars(examplecomments$docs$`Topic 8`)
-
-# 7 and 1 more likely for men
-examplecomments$docs$`Topic 7`[[1]]
-examplecomments$docs$`Topic 7`[[2]]
-docvars(examplecomments$docs$`Topic 7`)
-
-examplecomments$docs$`Topic 1`[[1]]
-examplecomments$docs$`Topic 1`[[2]]
-docvars(examplecomments$docs$`Topic 1`)
 
 
 # plotQuote(examplecomments, width = 30, main = "Financial worries")
@@ -167,19 +185,18 @@ gamma_terms <- gamma %>%
   mutate(topic = topicNames,
          topic = reorder(topic, gamma))
 
+win.metafile("analysis/out/gender/topic_freq.wmf")
 gamma_terms %>%
   ggplot(aes(x = reorder(topic, gamma), gamma)) +
   geom_col(show.legend = F) +
   coord_flip() +
   labs(x = NULL,
-       y = "topic salience") +
+       y = "Topic probability") +
   theme(axis.line = element_line(colour = "black"),
         panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(),
         panel.border = element_blank(),
         panel.background = element_blank())
-
-dev.copy(png,"analysis/out/gender/topic_freq.png")
 dev.off()
 
 
@@ -193,11 +210,8 @@ est <- estimateEffect(1:Ntopic ~ gender*kids, gender_topics,
 plot(est, covariate = "gender",
      model = gender_topics, method = "difference",
      cov.value1 = "male", cov.value2 = "female",
-     moderator = "kids", moderator.value = "kids")
-plot(est, covariate = "gender",
-     model = gender_topics, method = "difference",
-     cov.value1 = "male", cov.value2 = "female",
-     moderator = "kids", moderator.value = "no kids")
+    # moderator = "kids", moderator.value = "kids"
+    )
 
 # better version
 effects <- sapply(1:8, function(x) est$parameters[[x]][[x]]$est[2])

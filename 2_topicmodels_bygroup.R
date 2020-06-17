@@ -35,10 +35,10 @@ load("analysis/in/data.RData")
 # TOPIC MODELS
 ###
 
-wohntypen <- levels(data$wohntyp)
+wohntypenlvl <- levels(data$wohntyp)
 
 ### privat item
-graphics <- lapply(wohntypen, function(wohntypenx){
+graphics <- lapply(wohntypenlvl, function(wohntypenx){
   data_priv <- data[ which(data$wohntyp == wohntypenx), ]
 
   data_priv <- data_priv[ which(data_priv$OF01_01 != ""), ]
