@@ -12,7 +12,7 @@ lapply(packages, library, character.only = TRUE)
 
 # dir
 if (Sys.info()["nodename"]=="DBSFCL2"){
-  root.dir <- "C:/Users/czymara.local/PowerFolders/Corona Survey (Alexander Langenkamp)/Topic model project/"
+  root.dir <- "C:/Users/czymara.local/PowerFolders/projects/CoronaTopicModels/"
 } #else if (Sys.info()["nodename"]=="..."){
 #root.dir <- "C:/..."
 #}
@@ -117,9 +117,19 @@ priv_word_correlations_nokids <- privat_lonely_tidy_nokids %>%
   pairwise_cor(wordstem, id, sort = T)
 
 
+# export for translation
+write.xlsx(priv_word_correlations_alone,
+           file = "analysis/out/zonstiges/correlations_alone.xlsx")
+write.xlsx(priv_word_correlations_singlekids,
+           file = "analysis/out/zonstiges/correlations_singlekids.xlsx")
+write.xlsx(priv_word_correlations_couplekids,
+           file = "analysis/out/zonstiges/correlations_couplekids.xlsx")
+write.xlsx(priv_word_correlations_nokids,
+           file = "analysis/out/zonstiges/correlations_nokids.xlsx")
+
+
 ## plot word correlations
 # alone
-set.seed(SEED)
 corralone <- priv_word_correlations_alone %>%
   filter(item1 %in% c("angst", "famil")) %>%
   group_by(item1) %>%
@@ -192,7 +202,8 @@ dev.off()
 
 
 # plot network
-set.seed(SEED)
+pdf("analysis/out/private_word_networks_wohntyp.pdf")
+
 networkalone <- priv_word_correlations_alone %>%
   filter(correlation > .25) %>%
   graph_from_data_frame() %>%
@@ -204,7 +215,6 @@ networkalone <- priv_word_correlations_alone %>%
   labs(title = "Living alone") +
   panel_border()
 
-set.seed(SEED)
 networksinglekids <- priv_word_correlations_singlekids %>%
   filter(correlation > .5) %>% # higher correlations
   graph_from_data_frame() %>%
@@ -216,7 +226,6 @@ networksinglekids <- priv_word_correlations_singlekids %>%
   labs(title = "Single parent") +
   panel_border()
 
-set.seed(SEED)
 networkcouplekids <- priv_word_correlations_couplekids %>%
   filter(correlation > .25) %>%
   graph_from_data_frame() %>%
@@ -228,7 +237,6 @@ networkcouplekids <- priv_word_correlations_couplekids %>%
   labs(title = "Couple with kids") +
   panel_border()
 
-set.seed(SEED)
 networknokkids <- priv_word_correlations_nokids %>%
   filter(correlation > .25) %>%
   graph_from_data_frame() %>%
@@ -249,7 +257,7 @@ title_network <- ggdraw() + draw_label("Word correlations", fontface='bold') # m
 
 plot_grid(title_network, graphscomb_network, ncol=1, rel_heights=c(0.1, 1)) # add title
 
-dev.copy(png,"analysis/out/private_word_networks_wohntyp.png", width=800)
+# dev.copy(png,"analysis/out/private_word_networks_wohntyp.png", width=800)
 dev.off()
 
 

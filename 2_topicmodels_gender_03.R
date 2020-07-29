@@ -31,6 +31,15 @@ library(ggplot2); theme_set(theme_bw() +
 
 load("analysis/in/data.RData")
 
+
+# descriptives
+mean(nchar(data_priv$OF01_01))
+sd(nchar(data_priv$OF01_01))
+range(nchar(data_priv$OF01_01))
+
+data_priv$OF01_01[which(nchar(data_priv$OF01_01)
+                        == max(nchar(data_priv$OF01_01)))] # longest comment
+
 ###
 # TOPIC MODELS
 ###
@@ -48,12 +57,27 @@ data %<>%
   mutate(couple_kids = if_else(DE06 == 1,
                         "kids",
                         if_else(DE06 == 2,
-                        "no kids", NULL)))
+                        "no kids", NULL))) %>%
+  mutate(age = if_else(DE02 == 1,
+                               "<18",
+                       if_else(DE06 == 2,
+                               "18-29",
+                               if_else(DE06 == 3,
+                                       "30-44",
+                                       if_else(DE06 == 4,
+                                               "45-59",
+                                               if_else(DE06 == 5,
+                                                       "60-74",
+                                                       if_else(DE06 == 6,
+                                                               ">74",
+                                                               NULL)))))))
 
 
 data_priv <- data[ which(data$OF01_01 != ""), ]
 corpus_priv <- corpus(as.character(data_priv$OF01_01),
                       docvars = data.frame(gender = data_priv$gender,
+                                           age = data_priv$age,
+                                           wohntyp = data_priv$wohntyp,
                                            kids = data_priv$kids,
                                            id = data_priv$CASE
                                            ))
@@ -114,20 +138,20 @@ write.table(as.character(examplecomments$docs),
 # 6 and 8 more likely for women:
 examplecomments$docs$`Topic 1`[[1]]
 examplecomments$docs$`Topic 1`[[2]]
-docvars(examplecomments$docs$`Topic 1`)[-2]
+docvars(examplecomments$docs$`Topic 1`)[-4]
 
 examplecomments$docs$`Topic 7`[[1]]
 examplecomments$docs$`Topic 7`[[2]]
-docvars(examplecomments$docs$`Topic 7`)[-2]
+docvars(examplecomments$docs$`Topic 7`)[-4]
 
 # 7 and 1 more likely for men
 examplecomments$docs$`Topic 6`[[1]]
 examplecomments$docs$`Topic 6`[[2]]
-docvars(examplecomments$docs$`Topic 6`)
+docvars(examplecomments$docs$`Topic 6`)[-4]
 
 examplecomments$docs$`Topic 8`[[1]]
 examplecomments$docs$`Topic 8`[[2]]
-docvars(examplecomments$docs$`Topic 8`)
+docvars(examplecomments$docs$`Topic 8`)[-4]
 
 
 # plotQuote(examplecomments, width = 30, main = "Financial worries")
