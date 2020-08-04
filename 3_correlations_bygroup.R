@@ -7,7 +7,7 @@
 # packages
 packages <- c("tidyverse", "magrittr", "rtweet",
               "tidytext", "widyr", "quanteda",
-              "influential", "ggraph", "cowplot", "SnowballC")
+              "influential", "ggraph", "cowplot", "SnowballC", "xlsx")
 lapply(packages, library, character.only = TRUE)
 
 # dir
@@ -127,6 +127,15 @@ write.xlsx(priv_word_correlations_couplekids,
 write.xlsx(priv_word_correlations_nokids,
            file = "analysis/out/zonstiges/correlations_nokids.xlsx")
 
+# import translated ones
+priv_word_correlations_alone_EN <-
+  read.xlsx("analysis/in/transl/Kopie von correlations_alone_englisch.xlsx", 1)
+priv_word_correlations_alone_EN <- priv_word_correlations_alone_EN[2:4]
+
+priv_word_correlations_singlekids_EN <-
+  read.xlsx("analysis/in/transl/Kopie von correlations_singlekids_englisch_v2", 1)
+priv_word_correlations_singlekids_EN <- priv_word_correlations_singlekids_EN[2:4]
+
 
 ## plot word correlations
 # alone
@@ -204,7 +213,7 @@ dev.off()
 # plot network
 pdf("analysis/out/private_word_networks_wohntyp.pdf")
 
-networkalone <- priv_word_correlations_alone %>%
+networkalone <- priv_word_correlations_alone_EN %>%
   filter(correlation > .25) %>%
   graph_from_data_frame() %>%
   ggraph(layout = "fr") +
