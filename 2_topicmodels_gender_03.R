@@ -27,7 +27,10 @@ library(ggplot2); theme_set(theme_bw() +
                                     panel.grid.major = element_blank(),
                                     panel.grid.minor = element_blank(),
                                     panel.border = element_blank(),
-                                    panel.background = element_blank()))
+                                    panel.background = element_blank(),
+                                    axis.text = element_text(color="black"),
+                                    axis.ticks = element_line(colour = "black")))
+
 
 load("analysis/in/data.RData")
 
@@ -203,7 +206,8 @@ gamma_terms <- gamma %>%
   mutate(topic = topicNames,
          topic = reorder(topic, gamma))
 
-win.metafile("analysis/out/gender/topic_freq.wmf")
+# win.metafile("analysis/out/gender/topic_freq.wmf")
+pdf("analysis/out/gender/topic_freq.pdf")
 gamma_terms %>%
   ggplot(aes(x = reorder(topic, gamma), gamma)) +
   geom_col(show.legend = F) +
@@ -219,7 +223,7 @@ dev.off()
 
 
 # difference between genders
-est <- estimateEffect(1:Ntopic ~ gender*kids, gender_topics,
+est <- estimateEffect(1:Ntopic ~ gender, gender_topics,
                       meta = DFM_priv@docvars, uncertainty = "Global")
 
 # plot gender differences
@@ -227,8 +231,7 @@ est <- estimateEffect(1:Ntopic ~ gender*kids, gender_topics,
 # ref plot
 plot(est, covariate = "gender",
      model = gender_topics, method = "difference",
-     cov.value1 = "male", cov.value2 = "female",
-    # moderator = "kids", moderator.value = "kids"
+     cov.value1 = "male", cov.value2 = "female"
     )
 
 # better version
@@ -246,16 +249,17 @@ effecttable %<>%
                        1, 0))
 effecttable$labels <- with(gamma_terms, reorder(topic, gamma))[1:8]
 
-win.metafile("analysis/out/gender/gender_effect.wmf")
+# win.metafile("analysis/out/gender/gender_effect.wmf")
+pdf("analysis/out/gender/gender_effect.pdf")
 ggplot(data = effecttable) +
-  geom_point(aes(y = labels,
-                 x = effects,
-                 colour = as.factor(sig))) +
   geom_vline(xintercept = 0, # linetype=4,
              colour="black") +
   geom_errorbarh(aes(xmin=CIlower, xmax=CIupper,
                      y = labels,
                      colour = "grey")) +
+  geom_point(aes(y = labels,
+                 x = effects,
+                 colour = as.factor(sig))) +
   xlab("Men                                                                Women") + ylab("") +
   theme(legend.position = "none")
 dev.off()
