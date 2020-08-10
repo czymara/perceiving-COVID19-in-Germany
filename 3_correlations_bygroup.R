@@ -27,7 +27,10 @@ library(ggplot2); theme_set(theme_bw() +
                                     panel.grid.major = element_blank(),
                                     panel.grid.minor = element_blank(),
                                     panel.border = element_blank(),
-                                    panel.background = element_blank()))
+                                    panel.background = element_blank(),
+                                    axis.text = element_text(color="black"),
+                                    axis.ticks = element_line(colour = "black")))
+
 
 
 # load data
