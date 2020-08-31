@@ -136,8 +136,16 @@ priv_word_correlations_alone_EN <-
 priv_word_correlations_alone_EN <- priv_word_correlations_alone_EN[2:4]
 
 priv_word_correlations_singlekids_EN <-
-  read.xlsx("analysis/in/transl/Kopie von correlations_singlekids_englisch_v2", 1)
+  read.xlsx("analysis/in/transl/Kopie von correlations_singlekids_englisch_v2.xlsx", 1)
 priv_word_correlations_singlekids_EN <- priv_word_correlations_singlekids_EN[2:4]
+
+priv_word_correlations_couplekids_EN <-
+  read.xlsx("analysis/in/transl/Kopie von correlations_couplekids_englisch.xlsx", 1)
+priv_word_correlations_couplekids_EN <- priv_word_correlations_couplekids_EN[2:4]
+
+priv_word_correlations_nokids_EN <-
+  read.xlsx("analysis/in/transl/Kopie von correlations_nokids_englisch_v2.xlsx", 1)
+priv_word_correlations_nokids_EN <- priv_word_correlations_nokids_EN[2:4]
 
 
 ## plot word correlations
@@ -214,7 +222,7 @@ dev.off()
 
 
 # plot network
-pdf("analysis/out/private_word_networks_wohntyp.pdf")
+#pdf("analysis/out/private_word_networks_wohntyp_en.pdf")
 
 networkalone <- priv_word_correlations_alone_EN %>%
   filter(correlation > .25) %>%
@@ -227,7 +235,7 @@ networkalone <- priv_word_correlations_alone_EN %>%
   labs(title = "Living alone") +
   panel_border()
 
-networksinglekids <- priv_word_correlations_singlekids %>%
+networksinglekids <- priv_word_correlations_singlekids_EN %>%
   filter(correlation > .5) %>% # higher correlations
   graph_from_data_frame() %>%
   ggraph(layout = "fr") +
@@ -238,7 +246,7 @@ networksinglekids <- priv_word_correlations_singlekids %>%
   labs(title = "Single parent") +
   panel_border()
 
-networkcouplekids <- priv_word_correlations_couplekids %>%
+networkcouplekids <- priv_word_correlations_couplekids_EN %>%
   filter(correlation > .25) %>%
   graph_from_data_frame() %>%
   ggraph(layout = "fr") +
@@ -249,7 +257,7 @@ networkcouplekids <- priv_word_correlations_couplekids %>%
   labs(title = "Couple with kids") +
   panel_border()
 
-networknokkids <- priv_word_correlations_nokids %>%
+networknokkids <- priv_word_correlations_nokids_EN %>%
   filter(correlation > .25) %>%
   graph_from_data_frame() %>%
   ggraph(layout = "fr") +
@@ -269,7 +277,7 @@ title_network <- ggdraw() + draw_label("Word correlations", fontface='bold') # m
 
 plot_grid(title_network, graphscomb_network, ncol=1, rel_heights=c(0.1, 1)) # add title
 
-# dev.copy(png,"analysis/out/private_word_networks_wohntyp.png", width=800)
+dev.copy(png,"analysis/out/private_word_networks_wohntyp_en.png", width=800)
 dev.off()
 
 
