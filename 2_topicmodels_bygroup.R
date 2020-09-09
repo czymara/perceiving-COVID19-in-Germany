@@ -5,7 +5,7 @@
 
 
 # packages
-packages <- c("readxl", "dplyr", "tidyverse", "xlsx",
+packages <- c("readxl", "dplyr", "tidyverse", "xlsx", "cowplot",
               "magrittr", "imputeTS", "tidytext", "quanteda", "stm")
 lapply(packages, library, character.only = TRUE)
 
@@ -147,7 +147,7 @@ gamma_terms %>%
 })
 
 lapply(1:4, function(x){
-plot(test[[x]])
+plot(graphics[[x]])
 dev.copy(png, paste0("analysis/out/private_topic_freq_", x, ".png"))
 dev.off()
 })
