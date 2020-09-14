@@ -149,32 +149,20 @@ dev.off()
 
 
 # difference between genders
-est <- estimateEffect(1:Ntopic ~ wohntyp, pooledhh_topics,
-                      meta = DFM_priv@docvars, uncertainty = "Global")
+est <- estimateEffect(1:9 ~ wohntyp, pooledhh_topics,
+                      meta = DFM_priv@docvars)
 
 # plot gender differences
 
 # ref plot
-dev.copy(png, "analysis/out/private_topic_freq_effectpooled.png", height = 1500)
-plot(est, covariate = "wohntyp",
-     model = topic_prob_hhpooled, method = "pointestimate", # marginal topic proportion for each level
+dev.copy(png, "analysis/out/private_topic_freq_effectpooled_9.png"
+         #, height = 1500
+         )
+plot(est, covariate = "wohntyp",  topic = 9,
+     model = pooledhh_topics, method = "pointestimate", # marginal topic proportion for each level
      cov.value1 = "male", cov.value2 = "female"
      )
 dev.off()
 
 
-# win.metafile("analysis/out/gender/gender_effect.wmf")
-pdf("analysis/out/gender/gender_effect.pdf")
-ggplot(data = effecttable) +
-  geom_vline(xintercept = 0, # linetype=4,
-             colour="black") +
-  geom_errorbarh(aes(xmin=CIlower, xmax=CIupper,
-                     y = labels,
-                     colour = "grey")) +
-  geom_point(aes(y = labels,
-                 x = effects,
-                 colour = as.factor(sig))) +
-  xlab("Men                                                                Women") + ylab("") +
-  theme(legend.position = "none")
-dev.off()
 
