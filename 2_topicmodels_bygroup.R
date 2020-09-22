@@ -98,6 +98,7 @@ private_topics <- stm(DFM_priv,
 # plotQuote(examplecomments, width = 30, main = "Financial worries")
 
 
+
 topic_prob_privat <- summary(private_topics)
 topic_prob_privat <- t(topic_prob_privat$prob)
 colnames(topic_prob_privat) <- sapply(1:8, function(x) paste0("Topic ", x))
@@ -152,6 +153,7 @@ dev.copy(png, paste0("analysis/out/private_topic_freq_", x, ".png"))
 dev.off()
 })
 
+
 graphscomb_topics <- plot_grid(graphics[[1]],
                                graphics[[2]],
                                graphics[[3]],
@@ -164,4 +166,5 @@ plot_grid(title_topics, graphscomb_topics,
 
 dev.copy(png,"analysis/out/private_topicmodels_wohntyp.png", height = 800)
 dev.off()
+
 
