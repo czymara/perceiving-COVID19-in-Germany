@@ -171,6 +171,18 @@ plotNotAloneNoKid <- ggplot(data = plots[[3]],
        y = NULL,
        x = "Topic probability")
 
+# distribution of topics
+aggregate(plots[[3]]$gamma, list(plots[[3]]$topiclbl), mean)
+
+# how often is topic most frequent one (rank-1)
+domtopSingNoKid <- plots[[3]] %>%
+  group_by(document) %>%
+  slice(which.max(gamma))
+
+table(domtopSingNoKid[4])
+
+max(table(domtopSingNoKid[4]))/sum(table(domtopSingNoKid[4])) # how large the share with this topic is no 1
+
 
 # single parents
 plots[[4]]$topiclbl <- recode(as.character(plots[[4]]$topic),
@@ -192,6 +204,18 @@ plotSingleParent <- ggplot(data = plots[[4]],
   labs(title = "Single parent",
        y = NULL,
        x = "Topic probability")
+
+# distribution of topics
+aggregate(plots[[4]]$gamma, list(plots[[4]]$topiclbl), mean)
+
+# how often is topic most frequent one (rank-1)
+domtopSingPar <- plots[[4]] %>%
+  group_by(document) %>%
+  slice(which.max(gamma))
+
+table(domtopSingPar[4])
+
+max(table(domtopSingPar[4]))/sum(table(domtopSingPar[4])) # how large the share with this topic is no 1
 
 
 # combine all plots
