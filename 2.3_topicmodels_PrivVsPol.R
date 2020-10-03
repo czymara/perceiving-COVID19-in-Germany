@@ -103,16 +103,9 @@ corpusred <- corpus_subset(corpus_priv, id %in% DFM_priv@docvars$id)
 examplecomments <- findThoughts(gender_topics, texts = corpusred,
                                 n = 10, topics = c(1, 7, 6, 8))
 
-# export
-write.table(as.character(examplecomments$docs),
-           # file = "analysis/out/gender/examplecomments.txt",
-            sep = "\t",
-            row.names = FALSE)
-
-
 # table
-topic_prob_gender <- summary(gender_topics)
-topic_prob_gender <- t(topic_prob_gender$prob)
+topic_prob_PrivPol <- summary(PrivPol_topics)
+topic_prob_PrivPol <- t(topic_prob_PrivPol$prob)
 
 # topic names
 topicNames <- c("Economy", # 1
@@ -130,86 +123,13 @@ write.xlsx(topic_prob_gender,
            file = paste0("analysis/out/gender/topics.xlsx"))
 
 
-# topics per document
-beta <- tidy(gender_topics)
-
-# words per topic
-gamma <- tidy(gender_topics, matrix = "gamma",
-              document_names = rownames(DFM_priv))
-
-
-# plot
-topterms_pertopic <- beta %>%
-  arrange(beta) %>%
-  group_by(topic) %>%
-  top_n(3, beta) %>%
-  arrange(-beta) %>%
-  select(topic, term) %>%
-  summarise(terms = list(term)) %>%
-  mutate(terms = map(terms, paste, collapse = "\n ")) %>%
-  unnest(cols = c(terms))
-
-
-gamma_terms <- gamma %>%
-  group_by(topic) %>%
-  summarise(gamma = mean(gamma)) %>%
-  #  arrange(desc(gamma)) %>%
-  mutate(topic = topicNames,
-         topic = reorder(topic, gamma))
-
-# win.metafile("analysis/out/gender/topic_freq.wmf")
-pdf("analysis/out/gender/topic_freq.pdf")
-gamma_terms %>%
-  ggplot(aes(x = reorder(topic, gamma), gamma)) +
-  geom_col(show.legend = F) +
-  coord_flip() +
-  labs(x = NULL,
-       y = "Topic probability") +
-  theme(axis.line = element_line(colour = "black"),
-        panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank(),
-        panel.border = element_blank(),
-        panel.background = element_blank())
-dev.off()
-
-
 # difference between domains
 est <- estimateEffect(1:Ntopic ~ type, PrivPol_topics,
                       meta = DFM_comb@docvars, uncertainty = "Global")
 
-# ref plot
+# plot
 plot(est, covariate = "type",
      model = PrivPol_topics, method = "difference",
      cov.value1 = "priv", cov.value2 = "pol"
      )
-
-# better version
-effects <- sapply(1:8, function(x) est$parameters[[x]][[x]]$est[2])
-se <- sapply(1:8, function(x) sqrt(est$parameters[[x]][[x]]$vcov[2,2]))
-
-effecttable <- as.data.frame(cbind(effects, se))
-
-effecttable$CIupper <- effecttable$effects + 1.96*effecttable$se
-effecttable$CIlower <- effecttable$effects - 1.96*effecttable$se
-effecttable <- effecttable*-1
-effecttable %<>%
-  mutate(sig = if_else(CIupper<0 & CIlower<0 |
-                         CIupper>0 & CIlower>0,
-                       1, 0))
-effecttable$labels <- with(gamma_terms, reorder(topic, gamma))[1:8]
-
-# win.metafile("analysis/out/gender/gender_effect.wmf")
-pdf("analysis/out/gender/gender_effect.pdf")
-ggplot(data = effecttable) +
-  geom_vline(xintercept = 0, # linetype=4,
-             colour="black") +
-  geom_errorbarh(aes(xmin=CIlower, xmax=CIupper,
-                     y = labels,
-                     colour = "grey")) +
-  geom_point(aes(y = labels,
-                 x = effects,
-                 colour = as.factor(sig))) +
-  xlab("Men                                                                Women") + ylab("") +
-  theme(legend.position = "none")
-dev.off()
 
