@@ -40,16 +40,24 @@ load("analysis/in/data.RData")
 
 wohntypenlvl <- levels(data$wohntyp)
 
-### privat item
+## create separate corpora (for example comments later)
+corpora <- lapply(wohntypenlvl, function(wohntypenx){
+  data_priv <- data[ which(data$wohntyp == wohntypenx), ]
+
+  data_priv <- data_priv[ which(data_priv$OF01_01 != ""), ]
+  assign(paste0("corp_", wohntypenx),
+         corpus(as.character(data_priv$OF01_01),
+                                             docvars = data.frame(id = data_priv$CASE)))
+})
+
+
+### run topic models
 topicmodels <- lapply(wohntypenlvl, function(wohntypenx){
   data_priv <- data[ which(data$wohntyp == wohntypenx), ]
 
   data_priv <- data_priv[ which(data_priv$OF01_01 != ""), ]
   corpus_priv <- corpus(as.character(data_priv$OF01_01),
-                # docvars = data.frame(socmeduse = data_priv$ME02_03,
-                #                      lialone = data_priv$lialone,
-                #                      id = data_priv$CASE)
-                                      )
+                 docvars = data.frame(id = data_priv$CASE))
 
 toks_priv <- tokens(corpus_priv, remove_punct = T,
                remove_numbers = T,
@@ -83,7 +91,8 @@ topicmodels <-assign(paste0("topicmodel_", wohntypenx),
        stm(DFM_priv,
            K = Ntopic,
            seed = 1337,
-           verbose = F
+           verbose = F,
+           data = DFM_priv@docvars
                     ))
 
 # topic_prob_privat <- summary(paste0("topicmodel_", wohntypenx))
@@ -205,6 +214,11 @@ plotSingleParent <- ggplot(data = plots[[4]],
        y = NULL,
        x = "Topic probability")
 
+# example comments
+findThoughts(topicmodels[[4]], texts = corpora[[4]],
+                                n = 10, topics = 4)
+
+
 # distribution of topics
 aggregate(plots[[4]]$gamma, list(plots[[4]]$topiclbl), mean)
 
@@ -218,7 +232,8 @@ table(domtopSingPar[4])
 max(table(domtopSingPar[4]))/sum(table(domtopSingPar[4])) # how large the share with this topic is no 1
 
 
-# combine all plots
+
+## combine all plots
 plot_grid(plotSingleParent,
           plotCoupleKid,
           plotLivingAlone,

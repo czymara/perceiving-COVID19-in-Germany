@@ -232,7 +232,7 @@ networkalone <- priv_word_correlations_alone_EN %>%
   geom_node_point(color = "lightblue", size = 5) +
   geom_node_text(aes(label = name), repel = TRUE) +
   theme_void() +
-  labs(title = "Living alone") +
+  labs(title = "Living alone, no kids") +
   panel_border()
 
 networksinglekids <- priv_word_correlations_singlekids_EN %>%
@@ -257,7 +257,7 @@ networkcouplekids <- priv_word_correlations_couplekids_EN %>%
   labs(title = "Couple with kids") +
   panel_border()
 
-networknokkids <- priv_word_correlations_nokids_EN %>%
+networknoalonenokkids <- priv_word_correlations_nokids_EN %>%
   filter(correlation > .25) %>%
   graph_from_data_frame() %>%
   ggraph(layout = "fr") +
@@ -265,17 +265,17 @@ networknokkids <- priv_word_correlations_nokids_EN %>%
   geom_node_point(color = "lightblue", size = 5) +
   geom_node_text(aes(label = name), repel = TRUE) +
   theme_void() +
-  labs(title = "Living together without kids") +
+  labs(title = "Not alone, no kids") +
   panel_border()
 
-graphscomb_network <- plot_grid(networkalone,
-                                networksinglekids,
+graphscomb_network <- plot_grid(networksinglekids,
                                 networkcouplekids,
-                                networknokkids)
+                                networkalone,
+                                networknoalonenokkids)
 
-title_network <- ggdraw() + draw_label("Word correlations", fontface='bold') # make title
+# title_network <- ggdraw() + draw_label("Word correlations", fontface='bold') # make title
 
-plot_grid(title_network, graphscomb_network, ncol=1, rel_heights=c(0.1, 1)) # add title
+# plot_grid(title_network, graphscomb_network, ncol=1, rel_heights=c(0.1, 1)) # add title
 
 dev.copy(png,"analysis/out/private_word_networks_wohntyp_en.png", width=800)
 dev.off()
