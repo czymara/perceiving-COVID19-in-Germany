@@ -53,10 +53,12 @@ corpora <- lapply(wohntypenlvl, function(wohntypenx){
 
 ### run topic models
 topicmodels <- lapply(wohntypenlvl, function(wohntypenx){
-  data_priv <- data[ which(data$wohntyp == wohntypenx), ]
 
-  data_priv <- data_priv[ which(data_priv$OF01_01 != ""), ]
-  corpus_priv <- corpus(as.character(data_priv$OF01_01),
+data_priv <- data[ which(data$wohntyp == wohntypenx), ]
+
+data_priv <- data_priv[ which(data_priv$OF01_01 != ""), ]
+
+corpus_priv <- corpus(as.character(data_priv$OF01_01),
                  docvars = data.frame(id = data_priv$CASE))
 
 toks_priv <- tokens(corpus_priv, remove_punct = T,
@@ -84,6 +86,10 @@ DFM_priv   <- DFM_priv[rowsum_priv > 0, ]  #remove all docs without these terms
 
 # DFM_priv <- DFM_priv[complete.cases(DFM_priv@docvars$lialone), ] # listwise deletion
 
+IDs <- DFM_priv@docvars$id
+write.table(IDs, file = paste0("analysis/out/zonstiges/IDS_", wohntypenx, ".txt"), sep = "\t")
+
+# topic models
 Ntopic <- 8
 
 set.seed(SEED)
@@ -95,12 +101,26 @@ topicmodels <-assign(paste0("topicmodel_", wohntypenx),
            data = DFM_priv@docvars
                     ))
 
-# topic_prob_privat <- summary(paste0("topicmodel_", wohntypenx))
-# topic_prob_privat <- t(topic_prob_privat$prob)
-# colnames(topic_prob_privat) <- sapply(1:8, function(x) paste0("Topic ", x))
+# export tables
+topic_prob_privat <- summary(topicmodels)
+topic_prob_privat <- t(topic_prob_privat$prob)
+colnames(topic_prob_privat) <- sapply(1:8, function(x) paste0("Topic_", x))
 
-# write.xlsx(topic_prob_privat,
-#           file = paste0("analysis/out/private_topics_", wohntypenx, ".xlsx"))
+write.xlsx(topic_prob_privat,
+           file = paste0("analysis/out/private_topics_", wohntypenx, ".xlsx"))
+
+# example comments
+corpusred <- corpus_subset(corpus_priv, id %in% DFM_priv@docvars$id)
+examplecomments <- findThoughts(topicmodels, texts = corpusred,
+                                n = 10#, topics = c(1, 7, 6, 8)
+                                )
+
+write.table(as.character(examplecomments$docs),
+            file = paste0("analysis/out/topcomments_",
+                          wohntypenx, ".txt"),
+            sep = "\t",
+            row.names = FALSE)
+
 })
 
 # plot
