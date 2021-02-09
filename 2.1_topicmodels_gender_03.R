@@ -12,7 +12,7 @@ lapply(packages, library, character.only = TRUE)
 
 # dir
 if (Sys.info()["nodename"]=="DBSFCL2"){
-  root.dir <- "C:/Users/czymara.local/PowerFolders/projects/CoronaTopicModels/"
+  root.dir <- "C:/Users/czymara.local/PowerFolders/going/CoronaTopicModels/"
 } #else if (Sys.info()["nodename"]=="..."){
 #root.dir <- "C:/..."
 #}
@@ -34,14 +34,6 @@ library(ggplot2); theme_set(theme_bw() +
 
 load("analysis/in/data.RData")
 
-
-# descriptives
-mean(nchar(data_priv$OF01_01))
-sd(nchar(data_priv$OF01_01))
-range(nchar(data_priv$OF01_01))
-
-data_priv$OF01_01[which(nchar(data_priv$OF01_01)
-                        == max(nchar(data_priv$OF01_01)))] # longest comment
 
 ###
 # TOPIC MODELS
@@ -77,6 +69,16 @@ data %<>%
 
 
 data_priv <- data[ which(data$OF01_01 != ""), ]
+
+# descriptives
+mean(nchar(data_priv$OF01_01))
+sd(nchar(data_priv$OF01_01))
+range(nchar(data_priv$OF01_01))
+
+data_priv$OF01_01[which(nchar(data_priv$OF01_01)
+                        == max(nchar(data_priv$OF01_01)))] # longest comment
+
+
 corpus_priv <- corpus(as.character(data_priv$OF01_01),
                       docvars = data.frame(gender = data_priv$gender,
                                            age = data_priv$age,

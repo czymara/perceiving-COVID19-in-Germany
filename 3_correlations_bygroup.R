@@ -12,7 +12,7 @@ lapply(packages, library, character.only = TRUE)
 
 # dir
 if (Sys.info()["nodename"]=="DBSFCL2"){
-  root.dir <- "C:/Users/czymara.local/PowerFolders/projects/CoronaTopicModels/"
+  root.dir <- "C:/Users/czymara.local/PowerFolders/going/CoronaTopicModels/"
 } #else if (Sys.info()["nodename"]=="..."){
 #root.dir <- "C:/..."
 #}
@@ -176,7 +176,7 @@ corrsinglekids <- priv_word_correlations_singlekids %>%
   facet_wrap(~ item1, scales = "free") +
   xlab("") +
   ylab("") +
-  labs(title = "Single parent") +
+  labs(title = "Single parents") +
   coord_flip()
 
 # couple with kids
@@ -191,7 +191,7 @@ corrcouplekids <- priv_word_correlations_couplekids %>%
   facet_wrap(~ item1, scales = "free") +
   xlab("") +
   ylab("") +
-  labs(title = "Couple with kids") +
+  labs(title = "Couple with child(ren)") +
   coord_flip()
 
 # without kids
@@ -206,7 +206,7 @@ corrnokids <- priv_word_correlations_nokids %>%
   facet_wrap(~ item1, scales = "free") +
   xlab("") +
   ylab("") +
-  labs(title = "Living together without kids") +
+  labs(title = "Shared living without children") +
   coord_flip()
 
 
@@ -232,7 +232,7 @@ networkalone <- priv_word_correlations_alone_EN %>%
   geom_node_point(color = "lightblue", size = 5) +
   geom_node_text(aes(label = name), repel = TRUE) +
   theme_void() +
-  labs(title = "Living alone, no kids") +
+  labs(title = "Living alone") +
   panel_border()
 
 networksinglekids <- priv_word_correlations_singlekids_EN %>%
@@ -243,7 +243,7 @@ networksinglekids <- priv_word_correlations_singlekids_EN %>%
   geom_node_point(color = "lightblue", size = 5) +
   geom_node_text(aes(label = name), repel = TRUE) +
   theme_void() +
-  labs(title = "Single parent") +
+  labs(title = "Single parents") +
   panel_border()
 
 networkcouplekids <- priv_word_correlations_couplekids_EN %>%
@@ -254,7 +254,7 @@ networkcouplekids <- priv_word_correlations_couplekids_EN %>%
   geom_node_point(color = "lightblue", size = 5) +
   geom_node_text(aes(label = name), repel = TRUE) +
   theme_void() +
-  labs(title = "Couple with kids") +
+  labs(title = "Couple with child(ren)") +
   panel_border()
 
 networknoalonenokkids <- priv_word_correlations_nokids_EN %>%
@@ -265,7 +265,7 @@ networknoalonenokkids <- priv_word_correlations_nokids_EN %>%
   geom_node_point(color = "lightblue", size = 5) +
   geom_node_text(aes(label = name), repel = TRUE) +
   theme_void() +
-  labs(title = "Not alone, no kids") +
+  labs(title = "Shared living without children") +
   panel_border()
 
 graphscomb_network <- plot_grid(networksinglekids,
@@ -277,7 +277,25 @@ graphscomb_network <- plot_grid(networksinglekids,
 
 # plot_grid(title_network, graphscomb_network, ncol=1, rel_heights=c(0.1, 1)) # add title
 
+# combined
+graphscomb_network
 dev.copy(png,"analysis/out/private_word_networks_wohntyp_en.png", width=800)
 dev.off()
 
+# one by one
+plot(networksinglekids)
+dev.copy(png,"analysis/out/private_word_networks_singleparents_en.png")
+dev.off()
+
+plot(networkcouplekids)
+dev.copy(png,"analysis/out/private_word_networks_couple_en.png")
+dev.off()
+
+plot(networkalone)
+dev.copy(png,"analysis/out/private_word_networks_alone_en.png")
+dev.off()
+
+plot(networknoalonenokkids)
+dev.copy(png,"analysis/out/private_word_networks_nokids_en.png")
+dev.off()
 

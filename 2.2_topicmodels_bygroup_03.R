@@ -54,14 +54,14 @@ corpora <- lapply(wohntypenlvl, function(wohntypenx){
 ### run topic models
 topicmodels <- lapply(wohntypenlvl, function(wohntypenx){
 
-data_priv <- data[ which(data$wohntyp == wohntypenx), ]
+  data_priv <- data[ which(data$wohntyp == wohntypenx), ]
 
-data_priv <- data_priv[ which(data_priv$OF01_01 != ""), ]
+  data_priv <- data_priv[ which(data_priv$OF01_01 != ""), ]
 
-corpus_priv <- corpus(as.character(data_priv$OF01_01),
+  corpus_priv <- corpus(as.character(data_priv$OF01_01),
                  docvars = data.frame(id = data_priv$CASE))
 
-toks_priv <- tokens(corpus_priv, remove_punct = T,
+  toks_priv <- tokens(corpus_priv, remove_punct = T,
                remove_numbers = T,
                remove_symbols = T,
                remove_separators = F,
@@ -69,31 +69,30 @@ toks_priv <- tokens(corpus_priv, remove_punct = T,
                remove_url = T,
                include_docvars = T)
 
-stopWords_de <- read.table("analysis/in/stopwords-de.txt", encoding = "UTF-8", colClasses=c("character"))
+  stopWords_de <- read.table("analysis/in/stopwords-de.txt", encoding = "UTF-8", colClasses=c("character"))
 
-toks_priv <-  tokens_remove(toks_priv, c(stopWords_de$V1, stopwords("german")),
+  toks_priv <-  tokens_remove(toks_priv, c(stopWords_de$V1, stopwords("german")),
                        case_insensitive = TRUE, padding = FALSE)
 
-toks_priv <- tokens_wordstem(toks_priv, language = "german")
+  toks_priv <- tokens_wordstem(toks_priv, language = "german")
 
-DFM_priv <- dfm(toks_priv)
+  DFM_priv <- dfm(toks_priv)
 
-DFM_priv <- dfm_trim(DFM_priv, max_docfreq = 0.20,  min_docfreq = 0.001, docfreq_type = "prop")
+  DFM_priv <- dfm_trim(DFM_priv, max_docfreq = 0.20,  min_docfreq = 0.001, docfreq_type = "prop")
 
 
-rowsum_priv <- apply(DFM_priv , 1, sum) # identify text with no common terms
-DFM_priv   <- DFM_priv[rowsum_priv > 0, ]  #remove all docs without these terms
+  rowsum_priv <- apply(DFM_priv , 1, sum) # identify text with no common terms
+  DFM_priv   <- DFM_priv[rowsum_priv > 0, ]  #remove all docs without these terms
 
-# DFM_priv <- DFM_priv[complete.cases(DFM_priv@docvars$lialone), ] # listwise deletion
-
-IDs <- DFM_priv@docvars$id
-write.table(IDs, file = paste0("analysis/out/zonstiges/IDS_", wohntypenx, ".txt"), sep = "\t")
+# EXPORT IDs
+  #IDs <- DFM_priv@docvars$id
+  # write.table(IDs, file = paste0("analysis/out/zonstiges/IDS_", wohntypenx, ".txt"), sep = "\t")
 
 # topic models
-Ntopic <- 8
+  Ntopic <- 8
 
-set.seed(SEED)
-topicmodels <-assign(paste0("topicmodel_", wohntypenx),
+  set.seed(SEED)
+  topicmodels <-assign(paste0("topicmodel_", wohntypenx),
        stm(DFM_priv,
            K = Ntopic,
            seed = 1337,
@@ -101,27 +100,27 @@ topicmodels <-assign(paste0("topicmodel_", wohntypenx),
            data = DFM_priv@docvars
                     ))
 
-# export tables
-topic_prob_privat <- summary(topicmodels)
-topic_prob_privat <- t(topic_prob_privat$prob)
-colnames(topic_prob_privat) <- sapply(1:8, function(x) paste0("Topic_", x))
+# EXPORT TABLES
+  #topic_prob_privat <- summary(topicmodels)
+  #topic_prob_privat <- t(topic_prob_privat$prob)
+  #colnames(topic_prob_privat) <- sapply(1:8, function(x) paste0("Topic_", x))
 
-write.xlsx(topic_prob_privat,
-           file = paste0("analysis/out/private_topics_", wohntypenx, ".xlsx"))
+  #write.xlsx(topic_prob_privat,
+  #         file = paste0("analysis/out/private_topics_", wohntypenx, ".xlsx"))
 
-# example comments
-corpusred <- corpus_subset(corpus_priv, id %in% DFM_priv@docvars$id)
-examplecomments <- findThoughts(topicmodels, texts = corpusred,
-                                n = 10#, topics = c(1, 7, 6, 8)
-                                )
+# EXPORT TOP ANSWERS
+  #corpusred <- corpus_subset(corpus_priv, id %in% DFM_priv@docvars$id)
+  #examplecomments <- findThoughts(topicmodels, texts = corpusred,
+  #                              n = 10#, topics = c(1, 7, 6, 8)
+  #                              )
 
-write.table(as.character(examplecomments$docs),
-            file = paste0("analysis/out/topcomments_",
-                          wohntypenx, ".txt"),
-            sep = "\t",
-            row.names = FALSE)
+  #write.table(as.character(examplecomments$docs),
+  #          file = paste0("analysis/out/topcomments_",
+  #                        wohntypenx, ".txt"),
+  #          sep = "\t",
+  #          row.names = FALSE)
 
-})
+  })
 
 # plot
 plots <- lapply(1:4, function(x){
@@ -153,7 +152,7 @@ plotCoupleKid <- ggplot(data = plots[[1]],
                             x=gamma
                         )) +
   stat_summary(fun="mean", geom="bar") +
-  labs(title = "Couple with kids",
+  labs(title = "Couple with child(ren)",
        y = NULL,
        x = "Topic probability")
 
@@ -174,7 +173,7 @@ plotLivingAlone <- ggplot(data = plots[[2]],
                               x=gamma
                           )) +
   stat_summary(fun="mean", geom="bar") +
-  labs(title = "Living alone, no kids",
+  labs(title = "Living alone",
        y = NULL,
        x = "Topic probability")
 
@@ -196,7 +195,7 @@ plotNotAloneNoKid <- ggplot(data = plots[[3]],
                                 x=gamma
                             )) +
   stat_summary(fun="mean", geom="bar") +
-  labs(title = "Not alone, no kids",
+  labs(title = "Shared living without children",
        y = NULL,
        x = "Topic probability")
 
@@ -230,7 +229,7 @@ plotSingleParent <- ggplot(data = plots[[4]],
                                x=gamma
                            )) +
   stat_summary(fun="mean", geom="bar") +
-  labs(title = "Single parent",
+  labs(title = "Single parents",
        y = NULL,
        x = "Topic probability")
 
