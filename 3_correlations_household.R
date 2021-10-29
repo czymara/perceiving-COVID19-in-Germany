@@ -277,25 +277,30 @@ graphscomb_network <- plot_grid(networksinglekids,
 
 # plot_grid(title_network, graphscomb_network, ncol=1, rel_heights=c(0.1, 1)) # add title
 
-# combined
+## combined
 graphscomb_network
 dev.copy(png,"analysis/out/private_word_networks_wohntyp_en.png", width=800)
 dev.off()
 
-# one by one
+## one by one
+pdf("analysis/out/private_word_networks_singleparents_en.pdf")
 plot(networksinglekids)
-dev.copy(png,"analysis/out/private_word_networks_singleparents_en.png")
+# dev.copy(png,"analysis/out/private_word_networks_singleparents_en.png")
 dev.off()
 
+pdf("analysis/out/private_word_networks_couple_en.pdf")
 plot(networkcouplekids)
-dev.copy(png,"analysis/out/private_word_networks_couple_en.png")
+# dev.copy(png,"analysis/out/private_word_networks_couple_en.png")
 dev.off()
 
+pdf("analysis/out/private_word_networks_alone_en.pdf")
 plot(networkalone)
-dev.copy(png,"analysis/out/private_word_networks_alone_en.png")
+# dev.copy(png,"analysis/out/private_word_networks_alone_en.png")
 dev.off()
 
+pdf("analysis/out/private_word_networks_nokids_en.pdf")
 plot(networknoalonenokkids)
-dev.copy(png,"analysis/out/private_word_networks_nokids_en.png")
+# dev.copy(png,"analysis/out/private_word_networks_nokids_en.png")
 dev.off()
+
 

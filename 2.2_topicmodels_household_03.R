@@ -12,7 +12,7 @@ lapply(packages, library, character.only = TRUE)
 
 # dir
 if (Sys.info()["nodename"]=="DBSFCL2"){
-  root.dir <- "C:/Users/czymara.local/PowerFolders/projects/CoronaTopicModels/"
+  root.dir <- "C:/Users/czymara.local/PowerFolders/going/CoronaTopicModels/"
 } #else if (Sys.info()["nodename"]=="..."){
 #root.dir <- "C:/..."
 #}
@@ -51,7 +51,7 @@ corpora <- lapply(wohntypenlvl, function(wohntypenx){
 })
 
 
-### run topic models
+### prepare data (separately per group)
 topicmodels <- lapply(wohntypenlvl, function(wohntypenx){
 
   data_priv <- data[ which(data$wohntyp == wohntypenx), ]
@@ -122,6 +122,13 @@ topicmodels <- lapply(wohntypenlvl, function(wohntypenx){
 
   })
 
+# length of answer
+mean(nchar(corpora[[1]]))
+mean(nchar(corpora[[2]]))
+mean(nchar(corpora[[3]]))
+mean(nchar(corpora[[4]]))
+
+
 # plot
 plots <- lapply(1:4, function(x){
 beta <- tidy(topicmodels[[x]])
@@ -131,6 +138,13 @@ gamma <- tidy(topicmodels[[x]], matrix = "gamma",
              # document_names = rownames(DFM_priv)
               )
 })
+
+
+# probabilities of topics per group
+aggregate(plots[[1]]$gamma, list(plots[[1]]$topic), mean) # couple with kids
+aggregate(plots[[2]]$gamma, list(plots[[2]]$topic), mean) # living alone
+aggregate(plots[[3]]$gamma, list(plots[[3]]$topic), mean) # not alone, no kids
+aggregate(plots[[4]]$gamma, list(plots[[4]]$topic), mean) # single parent
 
 
 # topic names
@@ -156,6 +170,11 @@ plotCoupleKid <- ggplot(data = plots[[1]],
        y = NULL,
        x = "Topic probability")
 
+
+pdf("analysis/out/topics_singleparents.pdf")
+plotCoupleKid
+dev.off()
+
 # living alone
 plots[[2]]$topiclbl <- recode(as.character(plots[[2]]$topic),
                               "1" = "Restrictions",
@@ -176,6 +195,10 @@ plotLivingAlone <- ggplot(data = plots[[2]],
   labs(title = "Living alone",
        y = NULL,
        x = "Topic probability")
+
+pdf("analysis/out/topics_livingalone.pdf")
+plotLivingAlone
+dev.off()
 
 
 # not alone, no kid
@@ -198,6 +221,11 @@ plotNotAloneNoKid <- ggplot(data = plots[[3]],
   labs(title = "Shared living without children",
        y = NULL,
        x = "Topic probability")
+
+pdf("analysis/out/topics_nokids.pdf")
+plotNotAloneNoKid
+dev.off()
+
 
 # distribution of topics
 aggregate(plots[[3]]$gamma, list(plots[[3]]$topiclbl), mean)
@@ -232,6 +260,11 @@ plotSingleParent <- ggplot(data = plots[[4]],
   labs(title = "Single parents",
        y = NULL,
        x = "Topic probability")
+
+pdf("analysis/out/topics_singleparent.pdf")
+plotSingleParent
+dev.off()
+
 
 # example comments
 findThoughts(topicmodels[[4]], texts = corpora[[4]],
