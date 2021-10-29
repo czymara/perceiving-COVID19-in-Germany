@@ -3,3 +3,6 @@
 .RData
 .Ruserdata
 alt
+in
+.gitignore
+.Rproj
