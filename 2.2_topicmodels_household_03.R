@@ -172,7 +172,7 @@ plotCoupleKid <- ggplot(data = plots[[1]],
 
 
 # pdf("analysis/out/topics_couple.pdf")
-tiff("analysis/out/topics_couple.tiff", res = 350, units="in", width=5, height=5)
+tiff("analysis/out/tiff/topics_couple.tiff", res = 350, units="in", width=5, height=5)
 plotCoupleKid
 dev.off()
 
@@ -198,7 +198,7 @@ plotLivingAlone <- ggplot(data = plots[[2]],
        x = "Topic probability")
 
 # pdf("analysis/out/topics_livingalone.pdf")
-tiff("analysis/out/topics_livingalone.tiff", res = 350, units="in", width=5, height=5)
+tiff("analysis/out/tiff/topics_livingalone.tiff", res = 350, units="in", width=5, height=5)
 plotLivingAlone
 dev.off()
 
@@ -225,7 +225,7 @@ plotNotAloneNoKid <- ggplot(data = plots[[3]],
        x = "Topic probability")
 
 # pdf("analysis/out/topics_nokids.pdf")
-tiff("analysis/out/topics_nokids.tiff", res = 350, units="in", width=5, height=5)
+tiff("analysis/out/tiff/topics_nokids.tiff", res = 350, units="in", width=5, height=5)
 plotNotAloneNoKid
 dev.off()
 
@@ -265,7 +265,7 @@ plotSingleParent <- ggplot(data = plots[[4]],
        x = "Topic probability")
 
 # pdf("analysis/out/topics_singleparents.pdf")
-tiff("analysis/out/topics_singleparents.tiff", res = 350, units="in", width=5, height=5)
+tiff("analysis/out/tiff/topics_singleparents.tiff", res = 350, units="in", width=5, height=5)
 plotSingleParent
 dev.off()
 
