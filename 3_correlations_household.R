@@ -282,23 +282,28 @@ graphscomb_network
 dev.copy(png,"analysis/out/private_word_networks_wohntyp_en.png", width=800)
 dev.off()
 
+
 ## one by one
-pdf("analysis/out/private_word_networks_singleparents_en.pdf")
+# pdf("analysis/out/private_word_networks_singleparents_en.pdf")
+tiff("analysis/out/private_word_networks_singleparents_en.tiff", res = 350, units="in", width=5, height=5)
 plot(networksinglekids)
 # dev.copy(png,"analysis/out/private_word_networks_singleparents_en.png")
 dev.off()
 
-pdf("analysis/out/private_word_networks_couple_en.pdf")
+# pdf("analysis/out/private_word_networks_couple_en.pdf")
+tiff("analysis/out/private_word_networks_couple_en.tiff", res = 350, units="in", width=5, height=5)
 plot(networkcouplekids)
 # dev.copy(png,"analysis/out/private_word_networks_couple_en.png")
 dev.off()
 
-pdf("analysis/out/private_word_networks_alone_en.pdf")
+# pdf("analysis/out/private_word_networks_alone_en.pdf")
+tiff("analysis/out/private_word_networks_alone_en.tiff", res = 350, units="in", width=5, height=5)
 plot(networkalone)
 # dev.copy(png,"analysis/out/private_word_networks_alone_en.png")
 dev.off()
 
-pdf("analysis/out/private_word_networks_nokids_en.pdf")
+# pdf("analysis/out/private_word_networks_nokids_en.pdf")
+tiff("analysis/out/private_word_networks_nokids_en.tiff", res = 350, units="in", width=5, height=5)
 plot(networknoalonenokkids)
 # dev.copy(png,"analysis/out/private_word_networks_nokids_en.png")
 dev.off()
