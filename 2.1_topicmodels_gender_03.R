@@ -90,7 +90,7 @@ corpus_priv <- corpus(as.character(data_priv$OF01_01),
 toks_priv <- tokens(corpus_priv, remove_punct = T,
                     remove_numbers = T,
                     remove_symbols = T,
-                    remove_separators = F,
+                    remove_separators = T,
                     split_hyphens = T,
                     remove_url = T,
                     include_docvars = T)
